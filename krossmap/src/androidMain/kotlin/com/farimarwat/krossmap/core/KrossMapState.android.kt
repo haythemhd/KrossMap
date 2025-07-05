@@ -10,13 +10,14 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.platform.LocalContext
 import com.farimarwat.krossmap.model.KrossCoordinate
 import com.farimarwat.krossmap.model.KrossMarker
+import com.farimarwat.krossmap.model.KrossPolyLine
 
 actual class KrossMapState(
     val context: Context
 ) {
     actual val currentLocation by mutableStateOf<KrossCoordinate?>(null)
-    actual val markers: SnapshotStateList<KrossMarker> = mutableStateListOf()
-    actual val polylines = mutableStateListOf<List<KrossCoordinate>>()
+    actual internal val markers: SnapshotStateList<KrossMarker> = mutableStateListOf()
+    actual internal val polylines = mutableStateListOf<KrossPolyLine>()
 
 
     actual fun addMarker(marker: KrossMarker){
@@ -26,8 +27,12 @@ actual class KrossMapState(
     actual fun removeMarker(marker: KrossMarker) {
         markers.remove(marker)
     }
-    actual fun addPolyLine(list:List<KrossCoordinate>){
+    actual fun addPolyLine(polyLine: KrossPolyLine){
+        polylines.add(polyLine)
+    }
 
+    actual fun removePolyLine(polyline: KrossPolyLine) {
+        polylines.remove(polyline)
     }
 
 

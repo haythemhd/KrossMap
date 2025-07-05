@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import com.farimarwat.krossmap.core.KrossMap
 import com.farimarwat.krossmap.core.rememberKrossCameraPositionState
 import com.farimarwat.krossmap.core.rememberKrossMapState
+import com.farimarwat.krossmap.model.KrossCoordinate
+import com.farimarwat.krossmap.model.KrossMarker
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -30,6 +32,12 @@ fun App() {
             val mapState = rememberKrossMapState()
             val cameraState = rememberKrossCameraPositionState(
                 latitude,longitude,zoom
+            )
+            mapState.addMarker(
+                KrossMarker(
+                    KrossCoordinate(latitude,longitude),
+                    "Lakki Marwat"
+                )
             )
             KrossMap(
                 modifier = Modifier.fillMaxSize(),

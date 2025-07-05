@@ -2,16 +2,17 @@ package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.farimarwat.krossmap.model.KrossLocation
+import com.farimarwat.krossmap.model.KrossCoordinate
+import com.farimarwat.krossmap.model.KrossMarker
 
 expect class KrossMapState{
-     val currentLocation: KrossLocation?
-     val markers: SnapshotStateList<KrossLocation>
-     val polylines: SnapshotStateList<List<KrossLocation>>
+     val currentLocation: KrossCoordinate?
+     val markers: SnapshotStateList<KrossMarker>
+     val polylines: SnapshotStateList<List<KrossCoordinate>>
 
-     fun setCamera(location: KrossLocation)
-     fun addMarker(location: KrossLocation)
-     fun addPolyLine(list:List<KrossLocation>)
+     fun addMarker(marker: KrossMarker)
+     fun removeMarker(marker: KrossMarker)
+     fun addPolyLine(list:List<KrossCoordinate>)
 }
 
 @Composable

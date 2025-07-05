@@ -1,6 +1,6 @@
 package com.farimarwat.krossmap.model
 
-data class KrossLocation(
+data class KrossCoordinate(
     val latitude: Double,
     val longitude: Double
 )

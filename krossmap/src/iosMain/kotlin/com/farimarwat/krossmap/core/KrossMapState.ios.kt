@@ -5,22 +5,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.farimarwat.krossmap.model.KrossLocation
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.farimarwat.krossmap.model.KrossCoordinate
+import com.farimarwat.krossmap.model.KrossMarker
 
 actual class KrossMapState {
-    actual val currentLocation by mutableStateOf<KrossLocation?>(null)
-    actual val markers = mutableStateListOf<KrossLocation>()
-    actual val polylines = mutableStateListOf<List<KrossLocation>>()
+    actual val currentLocation by mutableStateOf<KrossCoordinate?>(null)
+    actual val markers: SnapshotStateList<KrossMarker> = mutableStateListOf()
+    actual val polylines = mutableStateListOf<List<KrossCoordinate>>()
 
-    actual fun setCamera(location: KrossLocation){
+
+    actual fun addMarker(marker: KrossMarker){
+        markers.add(marker)
+    }
+    actual fun removeMarker(marker: KrossMarker) {
+        markers.remove(marker)
+    }
+
+    actual fun addPolyLine(list:List<KrossCoordinate>){
 
     }
-    actual fun addMarker(location: KrossLocation){
 
-    }
-    actual fun addPolyLine(list:List<KrossLocation>){
 
-    }
 }
 
 @Composable

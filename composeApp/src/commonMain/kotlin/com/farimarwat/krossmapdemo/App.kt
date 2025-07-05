@@ -47,7 +47,7 @@ fun App() {
                 points = Coordinates.coordinates.map { (lon, lat) -> KrossCoordinate(latitude = lat, longitude = lon) },
                 title = "Route",
                 color = Color.Blue,
-                width = 18f
+                width = 24f
             )
 
             mapState.addPolyLine(polyline)

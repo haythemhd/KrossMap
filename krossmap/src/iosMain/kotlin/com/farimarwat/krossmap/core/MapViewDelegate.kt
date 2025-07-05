@@ -1,0 +1,41 @@
+package com.farimarwat.krossmap.core
+
+import platform.MapKit.MKMapView
+import platform.MapKit.MKMapViewDelegateProtocol
+import platform.MapKit.MKOverlayProtocol
+import platform.MapKit.MKOverlayRenderer
+import platform.MapKit.MKPolyline
+import platform.MapKit.MKPolylineRenderer
+import platform.UIKit.UIColor
+import platform.darwin.NSObject
+
+class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
+    private val reducePolyWidthBy = 12
+    override fun mapView(mapView: MKMapView, rendererForOverlay: MKOverlayProtocol): MKOverlayRenderer {
+        if (rendererForOverlay is MKPolyline) {
+            val polylineRenderer = MKPolylineRenderer(rendererForOverlay)
+
+            // Find the corresponding KrossPolyLine to get styling info
+            val krossPolyline = mapState.polylines.find { poly ->
+                // Match by title or other identifier
+                rendererForOverlay.title == poly.title
+            }
+
+            krossPolyline?.let { poly ->
+                polylineRenderer.strokeColor = poly.color.toUIColor()
+                polylineRenderer.lineWidth = poly.width.minus(reducePolyWidthBy).toDouble()
+            } ?: run {
+                // Default styling if no match found
+                polylineRenderer.strokeColor = UIColor.blueColor
+                krossPolyline?.let {
+                    polylineRenderer.lineWidth = it.width.minus(reducePolyWidthBy).toDouble()
+                }
+            }
+
+            return polylineRenderer
+        }
+
+        // Return a default renderer for other overlay types
+        return MKOverlayRenderer(rendererForOverlay)
+    }
+}

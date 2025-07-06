@@ -1,7 +1,11 @@
 package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.farimarwat.krossmap.model.KrossCoordinate
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
@@ -15,9 +19,9 @@ actual class KrossCameraPositionState(
     internal var longitude: Double
 ) {
 
+    actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
     private var mapView: MKMapView? = null
     private var camera: MKMapCamera? = null
-
 
 
     @OptIn(ExperimentalForeignApi::class)
@@ -60,6 +64,10 @@ actual class KrossCameraPositionState(
         )
 
         mapView?.setCamera(camera, animated = false)
+    }
+
+    actual suspend fun animateCamera(latitude: Double, longitude: Double){
+
     }
 
     @OptIn(ExperimentalForeignApi::class)

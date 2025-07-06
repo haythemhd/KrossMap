@@ -3,6 +3,7 @@ package com.farimarwat.krossmap.core
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.model.LatLng
@@ -24,6 +25,20 @@ actual fun KrossMap(
     Box(
         modifier = Modifier.fillMaxSize()
     ){
+        mapState.setCameraPositionState(cameraPositionState)
+        LaunchedEffect(cameraPositionState.currentCameraPosition){
+            println("MyPosition: ${"Working"}")
+
+            cameraPositionState.currentCameraPosition?.let{position ->
+                println("MyPosition: ${position}")
+                val latitude = position.latitude
+                val longitude = position.longitude
+                cameraPositionState.animateCamera(
+                    latitude,
+                    longitude
+                )
+            }
+        }
         GoogleMap(
             cameraPositionState = cameraPositionState.googleCameraPositionState ?: rememberCameraPositionState(),
             uiSettings = MapUiSettings(

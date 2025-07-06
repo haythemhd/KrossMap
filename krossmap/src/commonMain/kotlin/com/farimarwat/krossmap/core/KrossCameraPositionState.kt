@@ -1,9 +1,11 @@
 package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
+import com.farimarwat.krossmap.model.KrossCoordinate
 
 expect class KrossCameraPositionState {
 
+    var currentCameraPosition: KrossCoordinate?
     // Methods
     suspend fun animateTo(
         latitude: Double,
@@ -20,6 +22,7 @@ expect class KrossCameraPositionState {
         bearing: Float = 0f,
         tilt: Float = 0f
     )
+    suspend fun animateCamera(latitude: Double, longitude: Double)
 }
 
 @Composable

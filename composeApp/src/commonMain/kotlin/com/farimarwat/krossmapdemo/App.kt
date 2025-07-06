@@ -108,7 +108,7 @@ fun App() {
                     mapSettings = {
                         MapSettings(
                             onCurrentLocationClicked = {
-
+                                mapState.requestCurrentLocation()
                             }
                         )
                     }

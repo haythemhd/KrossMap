@@ -1,20 +1,39 @@
 package com.farimarwat.krossmapdemo
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.farimarwat.krossmap.core.KrossMap
 import com.farimarwat.krossmap.core.rememberKrossCameraPositionState
 import com.farimarwat.krossmap.core.rememberKrossMapState
 import com.farimarwat.krossmap.model.KrossCoordinate
 import com.farimarwat.krossmap.model.KrossMarker
 import com.farimarwat.krossmap.model.KrossPolyLine
+import dev.icerock.moko.permissions.DeniedAlwaysException
+import dev.icerock.moko.permissions.DeniedException
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.RequestCanceledException
+import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import dev.icerock.moko.permissions.location.LOCATION
+import krossmapdemo.composeapp.generated.resources.Res
+import krossmapdemo.composeapp.generated.resources.ic_current_location
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+
 
 @Composable
 @Preview
@@ -27,22 +46,51 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+
+            var permissionGranted by remember { mutableStateOf(false)}
+            val permissionFactory = rememberPermissionsControllerFactory()
+            val permissionController = remember(permissionFactory) {
+                permissionFactory.createPermissionsController()
+            }
+            BindEffect(permissionController)
+            LaunchedEffect(Unit){
+                permissionGranted = permissionController.isPermissionGranted(Permission.LOCATION)
+                if (!permissionGranted) {
+                    try {
+                        permissionController.providePermission(Permission.LOCATION)
+                        permissionGranted = permissionController.isPermissionGranted(Permission.LOCATION)
+                    } catch (ex: DeniedException) {
+                        permissionController.openAppSettings()
+                        println(ex)
+                    } catch (ex: DeniedAlwaysException) {
+                        permissionController.openAppSettings()
+                        println(ex)
+                    } catch (ex: RequestCanceledException) {
+                        println(ex)
+                    }
+                } else {
+                    println("Permission already granted")
+                }
+            }
             val latitude = 32.60248
             val longitude = 70.92092
             val zoom = 18f
 
 
-
+            //Create Map State
             val mapState = rememberKrossMapState()
+            //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
                 latitude,longitude,zoom
             )
+            //Add Marker
             mapState.addMarker(
                 KrossMarker(
                     KrossCoordinate(latitude,longitude),
                     "Lakki Marwat"
                 )
             )
+            //Add PolyLine
             val polyline = KrossPolyLine(
                 points = Coordinates.coordinates.map { (lon, lat) -> KrossCoordinate(latitude = lat, longitude = lon) },
                 title = "Route",
@@ -51,10 +99,44 @@ fun App() {
             )
 
             mapState.addPolyLine(polyline)
-            KrossMap(
-                modifier = Modifier.fillMaxSize(),
-                mapState = mapState,
-                cameraPositionState = cameraState,
+            if(permissionGranted){
+                //Create Map
+                KrossMap(
+                    modifier = Modifier.fillMaxSize(),
+                    mapState = mapState,
+                    cameraPositionState = cameraState,
+                    mapSettings = {
+                        MapSettings(
+                            onCurrentLocationClicked = {
+
+                            }
+                        )
+                    }
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun MapSettings(
+    onCurrentLocationClicked:()-> Unit={}
+){
+    Column (
+        modifier = Modifier.padding(16.dp)
+    ){
+        IconButton(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Blue),
+            onClick = onCurrentLocationClicked
+        ){
+            Icon(
+                painter = painterResource(Res.drawable.ic_current_location),
+                contentDescription = "Current Location",
+                tint = Color.White
             )
         }
     }

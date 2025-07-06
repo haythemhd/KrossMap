@@ -7,5 +7,6 @@ import androidx.compose.ui.Modifier
 expect fun KrossMap(
     modifier: Modifier = Modifier,
     mapState: KrossMapState,
-    cameraPositionState: KrossCameraPositionState
+    cameraPositionState: KrossCameraPositionState,
+    mapSettings:@Composable ()->Unit = {}
 )

@@ -21,6 +21,8 @@ mapsCompose = "5.0.4"
 playServicesMaps = "19.2.0"
 playServicesLocation = "21.3.0"
 
+mokoPermissions = "0.19.1"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -41,6 +43,10 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsCompose" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation"}
+
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref="mokoPermissions"}
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref="mokoPermissions"}
+moko-permissions-location = { module = "dev.icerock.moko:permissions-location", version.ref="mokoPermissions"}
 
 
 [plugins]

@@ -29,7 +29,8 @@ import platform.UIKit.UIColor
 actual fun KrossMap(
     modifier: Modifier,
     mapState: KrossMapState,
-    cameraPositionState: KrossCameraPositionState
+    cameraPositionState: KrossCameraPositionState,
+    mapSettings:@Composable ()->Unit
 ) {
 
     val mapDelegate = remember { MapViewDelegate(mapState) }

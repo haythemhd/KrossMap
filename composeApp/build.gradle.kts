@@ -44,6 +44,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(project(":krossmap"))
+
+            //moko permission
+            implementation(libs.moko.permissions)
+            implementation(libs.moko.permissions.compose)
+            implementation(libs.moko.permissions.location)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -23,10 +23,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 actual class KrossMapState(
     val context: Context
@@ -37,12 +33,15 @@ actual class KrossMapState(
     actual internal val polylines = mutableStateListOf<KrossPolyLine>()
 
     actual internal var currentLocationRequested: Boolean = false
+    actual var onUpdateLocation:(KrossCoordinate)-> Unit = {  }
+
 
     actual var krossMapCameraPositionState: KrossCameraPositionState? = null
     private  var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
+                onUpdateLocation?.invoke(KrossCoordinate(location.latitude,location.longitude))
                 currentLocation = currentLocation?.copy(
                     latitude = location.latitude,
                     longitude = location.longitude
@@ -60,7 +59,16 @@ actual class KrossMapState(
     }
 
     actual fun addMarker(marker: KrossMarker){
-        markers.add(marker)
+        val existingIndex = markers.indexOfFirst { it.title == marker.title }
+        if (existingIndex != -1) {
+            val exists = markers.get(existingIndex)
+            println("MyLocation: Exists: ${exists.coordinate}")
+            println("MyLocation: New: ${marker.coordinate}")
+            markers.removeAt(existingIndex)
+            markers.add(existingIndex, marker)
+        } else {
+            markers.add(marker)
+        }
     }
 
     actual fun removeMarker(marker: KrossMarker) {

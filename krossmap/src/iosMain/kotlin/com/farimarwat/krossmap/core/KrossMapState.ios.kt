@@ -27,6 +27,9 @@ actual class KrossMapState {
     actual val markers: SnapshotStateList<KrossMarker> = mutableStateListOf()
     actual val polylines = mutableStateListOf<KrossPolyLine>()
 
+    actual var onUpdateLocation:(KrossCoordinate)-> Unit = {  }
+
+
     actual var krossMapCameraPositionState: KrossCameraPositionState? = null
     private val locationManager = CLLocationManager()
 
@@ -38,7 +41,7 @@ actual class KrossMapState {
                 val location = (didUpdateLocations.lastOrNull() as? CLLocation) ?: return
                 val coordinate = location.coordinate
                 coordinate.useContents {
-
+                    onUpdateLocation.invoke(KrossCoordinate(latitude,longitude))
                     if (currentLocationRequested) {
                         krossMapCameraPositionState?.currentCameraPosition = KrossCoordinate(
                             latitude = latitude,

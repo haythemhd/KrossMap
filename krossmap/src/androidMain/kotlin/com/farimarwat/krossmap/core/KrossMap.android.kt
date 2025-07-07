@@ -4,6 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.model.LatLng
@@ -22,6 +27,9 @@ actual fun KrossMap(
     cameraPositionState: KrossCameraPositionState,
     mapSettings:@Composable ()->Unit
 ) {
+    val initialMarkers by remember {
+        derivedStateOf { mapState.markers.toList() }
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ){
@@ -45,20 +53,21 @@ actual fun KrossMap(
                 zoomControlsEnabled = false
             )
         ) {
-            mapState.markers.forEach { item ->
+            println("MyLocation: Map updated")
+            initialMarkers.forEach { item ->
+                val markerState = remember { MarkerState() }
+                println("MyLocation: ${item.coordinate}")
+                // This is the key - update the existing MarkerState
+                LaunchedEffect(item.coordinate) {
+                    markerState.position = LatLng(item.coordinate.latitude, item.coordinate.longitude)
+                }
+
                 Marker(
-                    state = MarkerState(LatLng(item.coordinate.latitude,item.coordinate.longitude)),
+                    state = markerState,
                     title = item.title
                 )
             }
 
-            mapState.polylines.forEach { poly ->
-                Polyline(
-                    points = poly.points.map { LatLng(it.latitude, it.longitude) },
-                    color = poly.color,
-                    width = poly.width
-                )
-            }
         }
        Box(
            modifier = Modifier.align(Alignment.BottomEnd)

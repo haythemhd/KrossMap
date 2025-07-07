@@ -39,7 +39,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
+        val latitude = 32.60370
+        val longitude = 70.92179
+        val zoom = 18f
+        var currentLocationMarker = remember {
+            KrossMarker(
+                KrossCoordinate(latitude, longitude),
+                "Current"
+            )
+        }
         Column(
             modifier = Modifier
                 .safeContentPadding()
@@ -47,18 +55,19 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            var permissionGranted by remember { mutableStateOf(false)}
+            var permissionGranted by remember { mutableStateOf(false) }
             val permissionFactory = rememberPermissionsControllerFactory()
             val permissionController = remember(permissionFactory) {
                 permissionFactory.createPermissionsController()
             }
             BindEffect(permissionController)
-            LaunchedEffect(Unit){
+            LaunchedEffect(Unit) {
                 permissionGranted = permissionController.isPermissionGranted(Permission.LOCATION)
                 if (!permissionGranted) {
                     try {
                         permissionController.providePermission(Permission.LOCATION)
-                        permissionGranted = permissionController.isPermissionGranted(Permission.LOCATION)
+                        permissionGranted =
+                            permissionController.isPermissionGranted(Permission.LOCATION)
                     } catch (ex: DeniedException) {
                         permissionController.openAppSettings()
                         println(ex)
@@ -72,34 +81,41 @@ fun App() {
                     println("Permission already granted")
                 }
             }
-            val latitude = 32.60248
-            val longitude = 70.92092
-            val zoom = 18f
+
 
 
             //Create Map State
             val mapState = rememberKrossMapState()
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
-                latitude,longitude,zoom
+                latitude, longitude, zoom
             )
-            //Add Marker
-            mapState.addMarker(
-                KrossMarker(
-                    KrossCoordinate(latitude,longitude),
-                    "Lakki Marwat"
-                )
-            )
+
+           LaunchedEffect(Unit){
+               mapState.onUpdateLocation = {
+                   currentLocationMarker = currentLocationMarker.copy(coordinate = it)
+                   mapState.addMarker(currentLocationMarker)
+               }
+           }
+            LaunchedEffect(Unit){
+                mapState.addMarker(currentLocationMarker)
+            }
+
             //Add PolyLine
             val polyline = KrossPolyLine(
-                points = Coordinates.coordinates.map { (lon, lat) -> KrossCoordinate(latitude = lat, longitude = lon) },
+                points = Coordinates.coordinates.map { (lon, lat) ->
+                    KrossCoordinate(
+                        latitude = lat,
+                        longitude = lon
+                    )
+                },
                 title = "Route",
                 color = Color.Blue,
                 width = 24f
             )
 
-            mapState.addPolyLine(polyline)
-            if(permissionGranted){
+
+            if (permissionGranted) {
                 //Create Map
                 KrossMap(
                     modifier = Modifier.fillMaxSize(),
@@ -121,18 +137,18 @@ fun App() {
 
 @Composable
 fun MapSettings(
-    onCurrentLocationClicked:()-> Unit={}
-){
-    Column (
+    onCurrentLocationClicked: () -> Unit = {}
+) {
+    Column(
         modifier = Modifier.padding(16.dp)
-    ){
+    ) {
         IconButton(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
                 .background(Color.Blue),
             onClick = onCurrentLocationClicked
-        ){
+        ) {
             Icon(
                 painter = painterResource(Res.drawable.ic_current_location),
                 contentDescription = "Current Location",

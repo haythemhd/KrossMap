@@ -1,8 +1,11 @@
 package com.farimarwat.krossmap.core
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.UIKitView
@@ -33,6 +36,21 @@ actual fun KrossMap(
     mapSettings:@Composable ()->Unit
 ) {
 
+    mapState.setCameraPositionState(cameraPositionState)
+    mapState.setCameraPositionState(cameraPositionState)
+    LaunchedEffect(cameraPositionState.currentCameraPosition){
+        println("MyPosition: ${"Working"}")
+
+        cameraPositionState.currentCameraPosition?.let{position ->
+            println("MyPosition: ${position}")
+            val latitude = position.latitude
+            val longitude = position.longitude
+            cameraPositionState.animateCamera(
+                latitude,
+                longitude
+            )
+        }
+    }
     val mapDelegate = remember { MapViewDelegate(mapState) }
     val mapView = remember {
         MKMapView()
@@ -80,16 +98,25 @@ actual fun KrossMap(
         }
     }
 
-    UIKitView(
-        factory = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ){
+        UIKitView(
+            factory = {
 
-            mapView
-        },
-        update = {map ->
+                mapView
+            },
+            update = {map ->
 
-        },
-        modifier = modifier
-    )
+            },
+            modifier = modifier
+        )
+        Box(
+            modifier = Modifier.align(Alignment.BottomEnd)
+        ){
+            mapSettings()
+        }
+    }
 }
 fun Color.toUIColor(): UIColor {
     val red = this.red.toDouble()

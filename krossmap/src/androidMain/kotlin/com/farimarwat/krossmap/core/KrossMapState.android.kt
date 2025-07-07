@@ -38,7 +38,7 @@ actual class KrossMapState(
 
     actual internal var currentLocationRequested: Boolean = false
 
-    private var krossMapCameraPositionState: KrossCameraPositionState? = null
+    actual var krossMapCameraPositionState: KrossCameraPositionState? = null
     private  var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -47,7 +47,6 @@ actual class KrossMapState(
                     latitude = location.latitude,
                     longitude = location.longitude
                 )
-                println("MyLocation: ${krossMapCameraPositionState}")
                 if(currentLocationRequested){
                     krossMapCameraPositionState?.currentCameraPosition = KrossCoordinate(
                        latitude = location.latitude,
@@ -111,12 +110,13 @@ actual class KrossMapState(
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     actual fun requestCurrentLocation() {
+        krossMapCameraPositionState?.currentCameraPosition = null
         currentLocationRequested = true
         startLocationUpdate()
     }
 
 
-    internal fun setCameraPositionState(state: KrossCameraPositionState){
+    internal actual fun setCameraPositionState(state: KrossCameraPositionState){
         this.krossMapCameraPositionState = state
     }
 }

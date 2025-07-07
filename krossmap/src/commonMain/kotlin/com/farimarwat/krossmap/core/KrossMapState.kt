@@ -12,6 +12,7 @@ expect class KrossMapState{
      internal val polylines: SnapshotStateList<KrossPolyLine>
 
      internal var currentLocationRequested: Boolean
+     internal var krossMapCameraPositionState: KrossCameraPositionState?
 
      fun addMarker(marker: KrossMarker)
      fun removeMarker(marker: KrossMarker)
@@ -23,6 +24,8 @@ expect class KrossMapState{
 
      fun startLocationUpdate()
      fun stopLocationUpdate()
+
+     internal fun setCameraPositionState(state: KrossCameraPositionState)
 }
 
 @Composable

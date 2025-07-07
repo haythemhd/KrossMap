@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +37,9 @@ actual fun KrossMap(
     cameraPositionState: KrossCameraPositionState,
     mapSettings:@Composable ()->Unit
 ) {
-
+    val initialMarkers by remember {
+        derivedStateOf { mapState.markers.toList() }
+    }
     mapState.setCameraPositionState(cameraPositionState)
     mapState.setCameraPositionState(cameraPositionState)
     LaunchedEffect(cameraPositionState.currentCameraPosition){
@@ -61,14 +65,26 @@ actual fun KrossMap(
     LaunchedEffect(Unit){
         cameraPositionState.setMapView(mapView)
     }
-    LaunchedEffect(mapState.markers){
-        mapState.markers.forEach { item ->
-            val annotation = MKPointAnnotation()
-            val coordinate = CLLocationCoordinate2DMake(item.coordinate.latitude, item.coordinate.longitude)
-            annotation.setCoordinate(coordinate)
-            annotation.setTitle(item.title)
+    // In your iOS KrossMap composable
+    LaunchedEffect(initialMarkers) {
+        initialMarkers.forEach { item ->
+            val currentAnnotations = mapView.annotations.filterIsInstance<MKPointAnnotation>()
+            val existingAnnotation = currentAnnotations.find { annotation ->
+                annotation.title == item.title
+            }
 
-            mapView.addAnnotation(annotation)
+            if (existingAnnotation != null) {
+                // Update existing annotation coordinate
+                val coordinate = CLLocationCoordinate2DMake(item.coordinate.latitude, item.coordinate.longitude)
+                existingAnnotation.setCoordinate(coordinate)
+            } else {
+                // Add new annotation
+                val annotation = MKPointAnnotation()
+                val coordinate = CLLocationCoordinate2DMake(item.coordinate.latitude, item.coordinate.longitude)
+                annotation.setCoordinate(coordinate)
+                annotation.setTitle(item.title)
+                mapView.addAnnotation(annotation)
+            }
         }
     }
     LaunchedEffect(mapState.polylines) {

@@ -137,3 +137,21 @@ LaunchedEffect(Unit) {
 - `currentLocation` – Holds the last known location.
 - `onUpdateLocation` – Callback triggered when location changes.
 
+---
+
+### 🤝 Contribute
+
+KrossMap is open-source and welcomes contributions!  
+If you find a bug, have a feature request, or want to improve the library, feel free to open an issue or submit a pull request.
+
+Check the [issues section](https://github.com/farimarwat/krossmap/issues) for things you can help with.
+
+---
+
+### 👨‍💻 About Me
+
+Hi, I’m **Farman Ullah Khan** – a passionate Android & Kotlin Multiplatform developer.  
+I love building open-source tools that simplify cross-platform development and improve developer experience.
+
+You can connect with me on [LinkedIn](https://www.linkedin.com/in/farman-ullah-marwat-a02859196/) or check out my other projects on [GitHub](https://github.com/farimarwat).
+

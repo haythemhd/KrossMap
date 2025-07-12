@@ -21,3 +21,51 @@ To add **KrossMap** to your project, include the following in your **shared modu
 dependencies {
     implementation("io.github.farimarwat:krossmap:1.0")
 }
+
+```
+
+### 🛠️ Usage Guide
+
+Follow these simple steps to get started with `KrossMap` in your Kotlin Multiplatform app.
+
+---
+
+#### 1️⃣ Create Camera State
+
+This defines the initial position and zoom level of the map:
+
+```kotlin
+val cameraState = rememberKrossCameraPositionState(
+    latitude = 32.60370,
+    longitude = 70.92179,
+    zoom = 18f
+)
+```
+### 2️⃣ Create Map State
+
+```kotlin
+val mapState = rememberKrossMapState()
+
+LaunchedEffect(Unit) {
+    mapState.startLocationUpdate()
+    mapState.onUpdateLocation = { coordinates ->
+        // Update marker and camera when location changes
+       
+    }
+}
+```
+
+### 3️⃣ Add Marker (Optional or Initial)
+
+```kotlin
+LaunchedEffect(Unit) {
+    val currentLocationMarker = remember {
+        KrossMarker(
+            coordinate = KrossCoordinate(32.60370, 70.92179),
+            title = "Current"
+        )
+    }
+    mapState.addOrUpdateMarker(currentLocationMarker)
+}
+```
+

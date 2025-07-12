@@ -11,6 +11,7 @@ import platform.darwin.NSObject
 
 class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
     private val reducePolyWidthBy = 12
+
     override fun mapView(mapView: MKMapView, rendererForOverlay: MKOverlayProtocol): MKOverlayRenderer {
         if (rendererForOverlay is MKPolyline) {
             val polylineRenderer = MKPolylineRenderer(rendererForOverlay)
@@ -21,15 +22,14 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                 rendererForOverlay.title() == poly.title
             }
 
-            krossPolyline?.let { poly ->
-                polylineRenderer.strokeColor = poly.color.toUIColor()
-                polylineRenderer.lineWidth = poly.width.minus(reducePolyWidthBy).toDouble()
-            } ?: run {
+            if (krossPolyline != null) {
+                // Apply styling from the found KrossPolyLine
+                polylineRenderer.strokeColor = krossPolyline.color.toUIColor()
+                polylineRenderer.lineWidth = krossPolyline.width.minus(reducePolyWidthBy).toDouble()
+            } else {
                 // Default styling if no match found
                 polylineRenderer.strokeColor = UIColor.blueColor
-                krossPolyline?.let {
-                    polylineRenderer.lineWidth = it.width.minus(reducePolyWidthBy).toDouble()
-                }
+                polylineRenderer.lineWidth = 5.0 // Set a default width
             }
 
             return polylineRenderer

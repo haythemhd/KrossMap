@@ -61,9 +61,7 @@ actual class KrossMapState(
     actual fun addOrUpdateMarker(marker: KrossMarker){
         val existingIndex = markers.indexOfFirst { it.title == marker.title }
         if (existingIndex != -1) {
-            val exists = markers.get(existingIndex)
-            markers.removeAt(existingIndex)
-            markers.add(existingIndex, marker)
+            markers[existingIndex] = marker
         } else {
             markers.add(marker)
         }

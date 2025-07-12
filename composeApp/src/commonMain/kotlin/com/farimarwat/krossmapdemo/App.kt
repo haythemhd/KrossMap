@@ -51,13 +51,6 @@ fun App() {
             )
         }
 
-        var alamgir = remember {
-            KrossMarker(
-                KrossCoordinate(32.60189, 70.92078),
-                title = "Alamgir"
-            )
-        }
-
         Column(
             modifier = Modifier
                 .safeContentPadding()
@@ -101,22 +94,16 @@ fun App() {
             )
 
             LaunchedEffect(Unit) {
+                mapState.startLocationUpdate()
                 mapState.onUpdateLocation = {
                     currentLocationMarker = currentLocationMarker.copy(coordinate = it)
                     mapState.addOrUpdateMarker(currentLocationMarker)
+                    cameraState.currentCameraPosition = it
                 }
             }
             LaunchedEffect(Unit) {
                 launch {
                     mapState.addOrUpdateMarker(currentLocationMarker)
-                    mapState.addOrUpdateMarker(alamgir)
-                }
-                launch {
-                    delay(8000)
-                    alamgir = alamgir.copy(coordinate = KrossCoordinate(
-                        32.60298,70.91782
-                    ))
-                    mapState.addOrUpdateMarker(alamgir)
                 }
             }
 

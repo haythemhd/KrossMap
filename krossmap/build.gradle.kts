@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
 kotlin {
@@ -105,5 +106,46 @@ kotlin {
             }
         }
     }
+
+    mavenPublishing{
+        coordinates(
+            groupId = "io.github.farimarwat",
+            artifactId = "krossmap",
+            version = "1.0"
+        )
+        pom {
+            name.set("KrossMap")
+            description.set("A simple and customizable Map library for Kotlin Multiplatform (KMP) projects, supporting marker rendering, camera movement, and cross-platform compatibility.")
+            inceptionYear.set("2024")
+            url.set("https://github.com/farimarwat/KrossMap")
+
+            licenses {
+                license {
+                    name.set("MIT")
+                    url.set("https://opensource.org/licenses/MIT")
+                }
+            }
+
+            // Specify developers information
+            developers {
+                developer {
+                    id.set("farimarwat")
+                    name.set("Farman Ullah Khan Marwat")
+                    email.set("farimarwat@gmail.com")
+                }
+            }
+
+            // Specify SCM information
+            scm {
+                url.set("https://github.com/farimarwat/KrossMap")
+            }
+        }
+
+        publishToMavenCentral()
+
+        // Enable GPG signing for all publications
+        signAllPublications()
+    }
+
 
 }

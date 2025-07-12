@@ -87,3 +87,20 @@ LaunchedEffect(Unit) {
     mapState.addPolyLine(polyline)
 }
 ```
+
+### 5️⃣ Show the Map
+
+```kotlin
+KrossMap(
+    modifier = Modifier.fillMaxSize(),
+    mapState = mapState,
+    cameraPositionState = cameraState,
+    mapSettings = {
+        MapSettings(
+            onCurrentLocationClicked = {
+                mapState.requestCurrentLocation()
+            }
+        )
+    }
+)
+```

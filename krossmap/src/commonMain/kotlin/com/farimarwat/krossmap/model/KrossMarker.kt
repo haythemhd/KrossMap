@@ -1,6 +1,6 @@
 package com.farimarwat.krossmap.model
 
 data class KrossMarker(
-    val coordinate: KrossCoordinate,
+    var coordinate: KrossCoordinate,
     val title: String = ""
 )

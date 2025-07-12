@@ -29,6 +29,8 @@ import dev.icerock.moko.permissions.RequestCanceledException
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import dev.icerock.moko.permissions.location.LOCATION
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import krossmapdemo.composeapp.generated.resources.Res
 import krossmapdemo.composeapp.generated.resources.ic_current_location
 import org.jetbrains.compose.resources.painterResource
@@ -48,6 +50,14 @@ fun App() {
                 "Current"
             )
         }
+
+        var alamgir = remember {
+            KrossMarker(
+                KrossCoordinate(32.60189, 70.92078),
+                title = "Alamgir"
+            )
+        }
+
         Column(
             modifier = Modifier
                 .safeContentPadding()
@@ -83,7 +93,6 @@ fun App() {
             }
 
 
-
             //Create Map State
             val mapState = rememberKrossMapState()
             //Create Camera State
@@ -91,24 +100,28 @@ fun App() {
                 latitude, longitude, zoom
             )
 
-           LaunchedEffect(Unit){
-               mapState.onUpdateLocation = {
-                   currentLocationMarker = currentLocationMarker.copy(coordinate = it)
-                   mapState.addMarker(currentLocationMarker)
-               }
-           }
-            LaunchedEffect(Unit){
-                mapState.addMarker(currentLocationMarker)
-                mapState.addMarker(
-                    KrossMarker(
-                        KrossCoordinate(32.60189, 70.92078),
-                        title="Alamgir"
-                    )
-                )
+            LaunchedEffect(Unit) {
+                mapState.onUpdateLocation = {
+                    currentLocationMarker = currentLocationMarker.copy(coordinate = it)
+                    mapState.addOrUpdateMarker(currentLocationMarker)
+                }
+            }
+            LaunchedEffect(Unit) {
+                launch {
+                    mapState.addOrUpdateMarker(currentLocationMarker)
+                    mapState.addOrUpdateMarker(alamgir)
+                }
+                launch {
+                    delay(8000)
+                    alamgir = alamgir.copy(coordinate = KrossCoordinate(
+                        32.60298,70.91782
+                    ))
+                    mapState.addOrUpdateMarker(alamgir)
+                }
             }
 
             //Add PolyLine
-            LaunchedEffect(Unit){
+            LaunchedEffect(Unit) {
                 val polyline = KrossPolyLine(
                     points = Coordinates.coordinates.map { (lon, lat) ->
                         KrossCoordinate(

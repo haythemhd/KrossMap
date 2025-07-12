@@ -15,7 +15,7 @@ expect class KrossMapState{
      internal var krossMapCameraPositionState: KrossCameraPositionState?
 
      var onUpdateLocation:(KrossCoordinate)-> Unit
-     fun addMarker(marker: KrossMarker)
+     fun addOrUpdateMarker(marker: KrossMarker)
      fun removeMarker(marker: KrossMarker)
 
      fun addPolyLine(polyLine: KrossPolyLine)

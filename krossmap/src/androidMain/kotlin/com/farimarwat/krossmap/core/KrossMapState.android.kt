@@ -58,12 +58,10 @@ actual class KrossMapState(
         }
     }
 
-    actual fun addMarker(marker: KrossMarker){
+    actual fun addOrUpdateMarker(marker: KrossMarker){
         val existingIndex = markers.indexOfFirst { it.title == marker.title }
         if (existingIndex != -1) {
             val exists = markers.get(existingIndex)
-            println("MyLocation: Exists: ${exists.coordinate}")
-            println("MyLocation: New: ${marker.coordinate}")
             markers.removeAt(existingIndex)
             markers.add(existingIndex, marker)
         } else {

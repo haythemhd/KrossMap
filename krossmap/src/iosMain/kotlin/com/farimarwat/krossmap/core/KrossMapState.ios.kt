@@ -75,7 +75,7 @@ actual class KrossMapState {
             }
         }
 
-    actual fun addMarker(marker: KrossMarker) {
+    actual fun addOrUpdateMarker(marker: KrossMarker) {
         markers.add(marker)
     }
 

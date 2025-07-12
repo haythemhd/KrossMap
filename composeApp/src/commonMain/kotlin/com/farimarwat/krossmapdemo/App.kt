@@ -99,6 +99,12 @@ fun App() {
            }
             LaunchedEffect(Unit){
                 mapState.addMarker(currentLocationMarker)
+                mapState.addMarker(
+                    KrossMarker(
+                        KrossCoordinate(32.60189, 70.92078),
+                        title="Alamgir"
+                    )
+                )
             }
 
             //Add PolyLine

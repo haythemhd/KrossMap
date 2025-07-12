@@ -56,12 +56,12 @@ actual fun KrossMap(
                 zoomControlsEnabled = false
             )
         ) {
-            println("Google Map Updated")
             initialMarkers.forEach { item ->
                 val markerState = remember { MarkerState() }
                 // This is the key - update the existing MarkerState
                 LaunchedEffect(item.coordinate) {
                     markerState.position = LatLng(item.coordinate.latitude, item.coordinate.longitude)
+                    markerState.showInfoWindow()
                 }
 
                 Marker(

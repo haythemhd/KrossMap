@@ -30,6 +30,9 @@ actual fun KrossMap(
     val initialMarkers by remember {
         derivedStateOf { mapState.markers.toList() }
     }
+    val initialPolyLine by remember {
+        derivedStateOf { mapState.polylines.toList() }
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ){
@@ -53,10 +56,9 @@ actual fun KrossMap(
                 zoomControlsEnabled = false
             )
         ) {
-            println("MyLocation: Map updated")
+            println("Google Map Updated")
             initialMarkers.forEach { item ->
                 val markerState = remember { MarkerState() }
-                println("MyLocation: ${item.coordinate}")
                 // This is the key - update the existing MarkerState
                 LaunchedEffect(item.coordinate) {
                     markerState.position = LatLng(item.coordinate.latitude, item.coordinate.longitude)
@@ -68,6 +70,13 @@ actual fun KrossMap(
                 )
             }
 
+            initialPolyLine.forEach { polyLine ->
+                Polyline(
+                    points = polyLine.points.map { LatLng(it.latitude,it.longitude) },
+                    width = polyLine.width,
+                    color = polyLine.color
+                )
+            }
         }
        Box(
            modifier = Modifier.align(Alignment.BottomEnd)

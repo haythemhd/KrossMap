@@ -70,7 +70,7 @@ actual fun KrossMap(
         initialMarkers.forEach { item ->
             val currentAnnotations = mapView.annotations.filterIsInstance<MKPointAnnotation>()
             val existingAnnotation = currentAnnotations.find { annotation ->
-                annotation.title == item.title
+                annotation.title() == item.title
             }
 
             if (existingAnnotation != null) {

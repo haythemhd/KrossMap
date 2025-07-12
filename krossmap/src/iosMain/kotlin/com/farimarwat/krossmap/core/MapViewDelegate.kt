@@ -18,7 +18,7 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
             // Find the corresponding KrossPolyLine to get styling info
             val krossPolyline = mapState.polylines.find { poly ->
                 // Match by title or other identifier
-                rendererForOverlay.title == poly.title
+                rendererForOverlay.title() == poly.title
             }
 
             krossPolyline?.let { poly ->

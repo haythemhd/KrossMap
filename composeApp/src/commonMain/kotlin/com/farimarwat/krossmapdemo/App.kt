@@ -102,18 +102,21 @@ fun App() {
             }
 
             //Add PolyLine
-            val polyline = KrossPolyLine(
-                points = Coordinates.coordinates.map { (lon, lat) ->
-                    KrossCoordinate(
-                        latitude = lat,
-                        longitude = lon
-                    )
-                },
-                title = "Route",
-                color = Color.Blue,
-                width = 24f
-            )
+            LaunchedEffect(Unit){
+                val polyline = KrossPolyLine(
+                    points = Coordinates.coordinates.map { (lon, lat) ->
+                        KrossCoordinate(
+                            latitude = lat,
+                            longitude = lon
+                        )
+                    },
+                    title = "Route",
+                    color = Color.Blue,
+                    width = 24f
+                )
 
+                mapState.addPolyLine(polyline)
+            }
 
             if (permissionGranted) {
                 //Create Map

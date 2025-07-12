@@ -30,7 +30,7 @@ Follow these simple steps to get started with `KrossMap` in your Kotlin Multipla
 
 ---
 
-#### 1️⃣ Create Camera State
+### 1️⃣ Create Camera State
 
 This defines the initial position and zoom level of the map:
 
@@ -68,4 +68,22 @@ LaunchedEffect(Unit) {
     mapState.addOrUpdateMarker(currentLocationMarker)
 }
 ```
+### 4️⃣ Add Polyline (Route)
 
+```kotlin
+LaunchedEffect(Unit) {
+    val polyline = KrossPolyLine(
+        points = listOf(
+            KrossCoordinate(32.60370, 70.92179),
+            KrossCoordinate(32.60450, 70.92230),
+            KrossCoordinate(32.60500, 70.92300),
+            // Add more coordinates as needed
+        ),
+        title = "Route",
+        color = Color.Blue,
+        width = 24f
+    )
+
+    mapState.addPolyLine(polyline)
+}
+```

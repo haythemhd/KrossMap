@@ -11,23 +11,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.UIKitView
-import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cValue
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.delay
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
-import platform.Foundation.NSString
 import platform.MapKit.MKMapView
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKPolyline
 import platform.MapKit.addOverlay
 import platform.UIKit.UIColor
+import platform.UIKit.UIView
+import kotlin.math.cos
+import kotlin.math.sin
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -35,37 +35,39 @@ actual fun KrossMap(
     modifier: Modifier,
     mapState: KrossMapState,
     cameraPositionState: KrossCameraPositionState,
-    mapSettings:@Composable ()->Unit
+    mapSettings: @Composable () -> Unit
 ) {
     val initialMarkers by remember {
         derivedStateOf { mapState.markers.toList() }
     }
-    mapState.setCameraPositionState(cameraPositionState)
-    mapState.setCameraPositionState(cameraPositionState)
-    LaunchedEffect(cameraPositionState.currentCameraPosition){
-        println("MyPosition: ${"Working"}")
 
-        cameraPositionState.currentCameraPosition?.let{position ->
+    mapState.setCameraPositionState(cameraPositionState)
+
+    LaunchedEffect(cameraPositionState.currentCameraPosition) {
+        println("MyPosition: Working")
+        cameraPositionState.currentCameraPosition?.let { position ->
             println("MyPosition: ${position}")
-            val latitude = position.latitude
-            val longitude = position.longitude
             cameraPositionState.animateCamera(
-                latitude,
-                longitude
+                position.latitude,
+                position.longitude
             )
         }
     }
+
     val mapDelegate = remember { MapViewDelegate(mapState) }
+    val animationHelper = remember { MarkerAnimationHelper() }
+
     val mapView = remember {
-        MKMapView()
-            .apply {
-                delegate = mapDelegate
-            }
+        MKMapView().apply {
+            delegate = mapDelegate
+        }
     }
-    LaunchedEffect(Unit){
+
+    LaunchedEffect(Unit) {
         cameraPositionState.setMapView(mapView)
     }
-    // In your iOS KrossMap composable
+
+    // Animated marker updates
     LaunchedEffect(initialMarkers) {
         initialMarkers.forEach { item ->
             val currentAnnotations = mapView.annotations.filterIsInstance<MKPointAnnotation>()
@@ -73,67 +75,143 @@ actual fun KrossMap(
                 annotation.title() == item.title
             }
 
+            val targetCoordinate = CLLocationCoordinate2DMake(
+                item.coordinate.latitude,
+                item.coordinate.longitude
+            )
+
             if (existingAnnotation != null) {
-                // Update existing annotation coordinate
-                val coordinate = CLLocationCoordinate2DMake(item.coordinate.latitude, item.coordinate.longitude)
-                existingAnnotation.setCoordinate(coordinate)
+                // Animate existing annotation to new position
+                animationHelper.animateMarker(
+                    annotation = existingAnnotation,
+                    toCoordinate = targetCoordinate,
+                    duration = 1000L // 1 second in milliseconds
+                )
             } else {
-                // Add new annotation
+                // Add new annotation (no animation needed for new markers)
                 val annotation = MKPointAnnotation()
-                val coordinate = CLLocationCoordinate2DMake(item.coordinate.latitude, item.coordinate.longitude)
-                annotation.setCoordinate(coordinate)
+                annotation.setCoordinate(targetCoordinate)
                 annotation.setTitle(item.title)
                 mapView.addAnnotation(annotation)
             }
         }
     }
+
     LaunchedEffect(mapState.polylines) {
         mapState.polylines.forEach { poly ->
             val coordinates = poly.points.map {
                 CLLocationCoordinate2DMake(it.latitude, it.longitude)
             }
 
-            // Use memScoped to allocate C array
             memScoped {
                 val coordinatesArray = allocArray<CLLocationCoordinate2D>(coordinates.size)
                 coordinates.forEachIndexed { index, coord ->
-                    coordinatesArray.get(index).latitude = coord.useContents { latitude}
-                    coordinatesArray.get(index).longitude = coord.useContents { longitude}
+                    coordinatesArray.get(index).latitude = coord.useContents { latitude }
+                    coordinatesArray.get(index).longitude = coord.useContents { longitude }
                 }
 
-                // Create MKPolyline from coordinates
                 val polyline = MKPolyline.polylineWithCoordinates(
                     coords = coordinatesArray,
                     count = coordinates.size.toULong(),
                 )
                 polyline.setTitle(poly.title)
-
-                // Add polyline to map
                 mapView.addOverlay(polyline)
             }
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ){
+    Box(modifier = Modifier.fillMaxSize()) {
         UIKitView(
-            factory = {
-
-                mapView
-            },
-            update = {map ->
-
-            },
+            factory = { mapView },
+            update = { map -> },
             modifier = modifier
         )
-        Box(
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ){
+        Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             mapSettings()
         }
     }
 }
+
+@OptIn(ExperimentalForeignApi::class)
+class MarkerAnimationHelper {
+    private val activeAnimations = mutableSetOf<String>()
+
+    suspend fun animateMarker(
+        annotation: MKPointAnnotation,
+        toCoordinate: CValue<CLLocationCoordinate2D>,
+        duration: Long
+    ) {
+        val annotationId = annotation.title() ?: "unknown"
+
+        // Prevent multiple animations for the same marker
+        if (activeAnimations.contains(annotationId)) {
+            return
+        }
+
+        activeAnimations.add(annotationId)
+
+        try {
+            val fromCoordinate = annotation.coordinate()
+
+            // Animation parameters
+            val frameCount = 60 // 60 frames for 1 second at 60fps
+            val frameDuration = duration / frameCount
+
+            repeat(frameCount) { frame ->
+                val progress = (frame + 1).toFloat() / frameCount
+                val easedProgress = easeInOut(progress)
+
+                val interpolatedCoordinate = interpolateCoordinates(
+                    fromCoordinate,
+                    toCoordinate,
+                    easedProgress.toDouble()
+                )
+
+                annotation.setCoordinate(interpolatedCoordinate)
+
+                if (frame < frameCount - 1) {
+                    delay(frameDuration)
+                }
+            }
+
+            // Ensure final position is exact
+            annotation.setCoordinate(toCoordinate)
+
+        } finally {
+            activeAnimations.remove(annotationId)
+        }
+    }
+
+    private fun easeInOut(t: Float): Float {
+        return if (t < 0.5f) {
+            2f * t * t
+        } else {
+            -1f + (4f - 2f * t) * t
+        }
+    }
+
+    private fun interpolateCoordinates(
+        from: CValue<CLLocationCoordinate2D>,
+        to: CValue<CLLocationCoordinate2D>,
+        progress: Double
+    ): CValue<CLLocationCoordinate2D> {
+        return from.useContents {
+            val fromLat = latitude
+            val fromLng = longitude
+
+            to.useContents {
+                val toLat = latitude
+                val toLng = longitude
+
+                val interpolatedLat = fromLat + (toLat - fromLat) * progress
+                val interpolatedLng = fromLng + (toLng - fromLng) * progress
+
+                CLLocationCoordinate2DMake(interpolatedLat, interpolatedLng)
+            }
+        }
+    }
+}
+
 fun Color.toUIColor(): UIColor {
     val red = this.red.toDouble()
     val green = this.green.toDouble()

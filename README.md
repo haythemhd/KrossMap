@@ -104,3 +104,36 @@ KrossMap(
     }
 )
 ```
+
+### 🧩 KrossMapState
+
+`KrossMapState` is the main state holder used to manage the map in KrossMap.  
+It provides support for working with markers, polylines, and current location updates.
+
+---
+
+### ✅ Usage
+
+```kotlin
+val mapState = rememberKrossMapState()
+
+LaunchedEffect(Unit) {
+    mapState.startLocationUpdate()
+    mapState.onUpdateLocation = { location ->
+        mapState.addOrUpdateMarker(KrossMarker(location, "Current"))
+        cameraState.currentCameraPosition = location
+    }
+}
+```
+### 🔧 Available Functions & Properties
+
+- `addOrUpdateMarker(marker)` – Add or update a marker on the map.
+- `removeMarker(marker)` – Remove a marker from the map.
+- `addPolyLine(polyLine)` – Add a polyline (route) to the map.
+- `removePolyLine(polyLine)` – Remove a polyline from the map.
+- `requestCurrentLocation()` – Request the current device location once.
+- `startLocationUpdate()` – Start listening to location updates.
+- `stopLocationUpdate()` – Stop location updates.
+- `currentLocation` – Holds the last known location.
+- `onUpdateLocation` – Callback triggered when location changes.
+

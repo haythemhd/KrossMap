@@ -43,7 +43,7 @@ fun App() {
     MaterialTheme {
         val latitude = 32.60370
         val longitude = 70.92179
-        val zoom = 19f
+        val zoom = 17f
         val tilt = 0f
         var currentLocationMarker = remember {
             KrossMarker(

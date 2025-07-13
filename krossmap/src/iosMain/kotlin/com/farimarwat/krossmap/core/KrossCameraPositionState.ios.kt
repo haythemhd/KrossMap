@@ -119,27 +119,29 @@ actual fun rememberKrossCameraPositionState(
     return state
 }
 fun zoomToDistance(zoom: Float): Double {
-    return when {
-        zoom >= 20 -> 170.0     // Tested and working value
-        zoom >= 19 -> 340.0     // 2x larger distance
-        zoom >= 18 -> 500.0     // Reduced from 680 - roads were too small, so camera closer
-        zoom >= 17 -> 1000.0    // ~2x from 18
-        zoom >= 16 -> 2000.0    // ~2x from 17
-        zoom >= 15 -> 4000.0    // ~2x from 16
-        zoom >= 14 -> 8000.0    // ~2x from 15
-        zoom >= 13 -> 16000.0   // ~2x from 14
-        zoom >= 12 -> 32000.0   // ~2x from 13
-        zoom >= 11 -> 64000.0   // ~2x from 12
-        zoom >= 10 -> 128000.0  // ~2x from 11
-        zoom >= 9 -> 256000.0   // ~2x from 10
-        zoom >= 8 -> 512000.0   // ~2x from 9
-        zoom >= 7 -> 1024000.0  // ~2x from 8
-        zoom >= 6 -> 2048000.0  // ~2x from 7
-        zoom >= 5 -> 4096000.0  // ~2x from 6
-        zoom >= 4 -> 8192000.0  // ~2x from 5
-        zoom >= 3 -> 16384000.0 // ~2x from 4
-        zoom >= 2 -> 32768000.0 // ~2x from 3
-        zoom >= 1 -> 65536000.0 // ~2x from 2
-        else -> 131072000.0     // ~2x from 1
+    val baseDistance =  when {
+        zoom >= 20 -> 200.0       // was 170.0
+        zoom >= 19 -> 400.0       // was 340.0
+        zoom >= 18 -> 600.0       // was 500.0
+        zoom >= 17 -> 1200.0      // was 1000.0
+        zoom >= 16 -> 2400.0      // was 2000.0
+        zoom >= 15 -> 4800.0      // was 4000.0
+        zoom >= 14 -> 9600.0      // was 8000.0
+        zoom >= 13 -> 19200.0     // was 16000.0
+        zoom >= 12 -> 38400.0     // was 32000.0
+        zoom >= 11 -> 76800.0     // was 64000.0
+        zoom >= 10 -> 153600.0    // was 128000.0
+        zoom >= 9 -> 307200.0     // was 256000.0
+        zoom >= 8 -> 614400.0     // was 512000.0
+        zoom >= 7 -> 1228800.0    // was 1024000.0
+        zoom >= 6 -> 2457600.0    // was 2048000.0
+        zoom >= 5 -> 4915200.0    // was 4096000.0
+        zoom >= 4 -> 9830400.0    // was 8192000.0
+        zoom >= 3 -> 19660800.0   // was 16384000.0
+        zoom >= 2 -> 39321600.0   // was 32768000.0
+        zoom >= 1 -> 78643200.0   // was 65536000.0
+        else -> 157286400.0       // was 131072000.0
     }
+    return baseDistance * 1.5
 }
+

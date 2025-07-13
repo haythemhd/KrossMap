@@ -136,7 +136,7 @@ fun App() {
                     },
                     title = "Route",
                     color = Color.Blue,
-                    width = 70f
+                    width = 50f
                 )
 
                 mapState.addPolyLine(polyline)

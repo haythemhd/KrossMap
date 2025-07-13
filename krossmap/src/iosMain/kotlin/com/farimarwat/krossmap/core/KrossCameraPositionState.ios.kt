@@ -69,7 +69,7 @@ actual class KrossCameraPositionState(
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    actual suspend fun animateCamera(latitude: Double, longitude: Double) {
+    actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
 
         // Get current camera to preserve zoom, tilt, and bearing
@@ -79,7 +79,7 @@ actual class KrossCameraPositionState(
             centerCoordinate = coordinate,
             fromDistance = currentCamera?.altitude ?: 10000.0,
             pitch = currentCamera?.pitch ?: 0.0,
-            heading = currentCamera?.heading ?: 0.0
+            heading = bearing.toDouble()
         )
 
         mapView?.setCamera(newCamera, animated = true)

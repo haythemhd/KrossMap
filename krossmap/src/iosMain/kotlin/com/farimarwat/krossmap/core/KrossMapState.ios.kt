@@ -10,6 +10,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.farimarwat.krossmap.model.KrossCoordinate
 import com.farimarwat.krossmap.model.KrossMarker
 import com.farimarwat.krossmap.model.KrossPolyLine
+import com.farimarwat.krossmap.utils.calculateBearing
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLAuthorizationStatus
@@ -31,6 +32,9 @@ actual class KrossMapState {
 
     private val locationManager = CLLocationManager()
 
+    actual internal var previousCoordinates: KrossCoordinate? = null
+
+
 
     @OptIn(ExperimentalForeignApi::class)
     val locationManagerDelegate: CLLocationManagerDelegateProtocol =
@@ -39,11 +43,23 @@ actual class KrossMapState {
                 val location = (didUpdateLocations.lastOrNull() as? CLLocation) ?: return
                 val coordinate = location.coordinate
                 coordinate.useContents {
-                    onUpdateLocation.invoke(KrossCoordinate(latitude,longitude))
+                    val bearing = if (previousCoordinates != null) {
+                        calculateBearing(
+                            start = KrossCoordinate(previousCoordinates!!.latitude, previousCoordinates!!.longitude),
+                            end = KrossCoordinate(latitude, longitude)
+                        )
+                    } else {
+                        0f
+                    }
+
+                    val newCoordinates = KrossCoordinate(latitude,longitude,bearing)
+                    onUpdateLocation.invoke(newCoordinates)
                     if (currentLocationRequested) {
                         stopLocationUpdate()
                         currentLocationRequested = false
                     }
+
+                    previousCoordinates = newCoordinates
                 }
 
 

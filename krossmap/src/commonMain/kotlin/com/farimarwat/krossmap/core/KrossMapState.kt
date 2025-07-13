@@ -12,6 +12,7 @@ expect class KrossMapState{
      internal val polylines: SnapshotStateList<KrossPolyLine>
 
      internal var currentLocationRequested: Boolean
+     internal var previousCoordinates: KrossCoordinate?
 
      var onUpdateLocation:(KrossCoordinate)-> Unit
      fun addOrUpdateMarker(marker: KrossMarker)

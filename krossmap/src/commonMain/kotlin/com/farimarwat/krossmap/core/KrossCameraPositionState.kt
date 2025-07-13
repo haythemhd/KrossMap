@@ -22,7 +22,7 @@ expect class KrossCameraPositionState {
         bearing: Float = 0f,
         tilt: Float = 0f
     )
-    suspend fun animateCamera(latitude: Double, longitude: Double)
+    suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float = 0f)
 }
 
 @Composable

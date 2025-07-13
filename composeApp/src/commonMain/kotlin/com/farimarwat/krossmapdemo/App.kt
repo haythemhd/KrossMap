@@ -101,10 +101,10 @@ fun App() {
                 mapState.onUpdateLocation = {
                     currentLocationMarker = currentLocationMarker.copy(coordinate = it)
                     mapState.addOrUpdateMarker(currentLocationMarker)
-                    cameraState.currentCameraPosition = it
+
                     println("MyLocation: ${it}")
                     scope.launch {
-                        cameraState.animateCamera(it.latitude, it.longitude)
+                        cameraState.animateCamera(it.latitude, it.longitude, it.bearing)
                     }
                 }
             }

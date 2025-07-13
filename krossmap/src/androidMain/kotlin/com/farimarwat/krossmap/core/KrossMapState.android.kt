@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.farimarwat.krossmap.model.KrossCoordinate
 import com.farimarwat.krossmap.model.KrossMarker
 import com.farimarwat.krossmap.model.KrossPolyLine
+import com.farimarwat.krossmap.utils.calculateBearing
 import com.farimarwat.krossmap.utils.hasPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -33,6 +34,7 @@ actual class KrossMapState(
     actual internal val polylines = mutableStateListOf<KrossPolyLine>()
 
     actual internal var currentLocationRequested: Boolean = false
+    actual internal var previousCoordinates: KrossCoordinate? = null
     actual var onUpdateLocation:(KrossCoordinate)-> Unit = {  }
 
 
@@ -40,7 +42,16 @@ actual class KrossMapState(
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
-                onUpdateLocation?.invoke(KrossCoordinate(location.latitude,location.longitude))
+                val bearing = if (previousCoordinates != null) {
+                    calculateBearing(
+                        start = KrossCoordinate(previousCoordinates!!.latitude, previousCoordinates!!.longitude),
+                        end = KrossCoordinate(location.latitude, location.longitude)
+                    )
+                } else {
+                    0f
+                }
+                val newCoordinates = KrossCoordinate(location.latitude, location.longitude,bearing)
+                onUpdateLocation.invoke(newCoordinates)
                 currentLocation = currentLocation?.copy(
                     latitude = location.latitude,
                     longitude = location.longitude
@@ -49,6 +60,8 @@ actual class KrossMapState(
                     stopLocationUpdate()
                     currentLocationRequested = false
                 }
+
+                previousCoordinates = newCoordinates
             }
         }
     }

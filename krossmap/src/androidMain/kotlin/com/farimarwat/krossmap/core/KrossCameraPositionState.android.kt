@@ -54,14 +54,14 @@ actual class KrossCameraPositionState(
             )
         )
     }
-    actual suspend fun animateCamera(latitude: Double, longitude: Double){
+    actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float){
         val position = googleCameraPositionState?.position
         position?.let { p ->
             val cameraUpdate = CameraUpdateFactory.newCameraPosition(
                 CameraPosition.Builder()
                     .target(LatLng(latitude, longitude))
                     .zoom(p.zoom)
-                    .bearing(p.bearing)
+                    .bearing(bearing)
                     .tilt(p.tilt)
                     .build()
             )

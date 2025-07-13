@@ -13,6 +13,9 @@ import platform.MapKit.MKCoordinateRegionMakeWithDistance
 import platform.MapKit.MKMapCamera
 import platform.MapKit.MKMapView
 import platform.posix.pow
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.log2
 
 actual class KrossCameraPositionState(
     private var camera: MKMapCamera
@@ -32,7 +35,7 @@ actual class KrossCameraPositionState(
         tilt: Float
     ) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom)
+        val distance = zoomToDistance(zoom, latitude)
 
         camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -53,7 +56,7 @@ actual class KrossCameraPositionState(
         tilt: Float
     ) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom)
+        val distance = zoomToDistance(zoom, latitude)
 
         camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -101,7 +104,7 @@ actual fun rememberKrossCameraPositionState(
 ): KrossCameraPositionState {
     val state = remember {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom)
+        val distance = zoomToDistance(zoom, latitude)
 
         val camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -115,7 +118,28 @@ actual fun rememberKrossCameraPositionState(
     }
     return state
 }
-
-fun zoomToDistance(zoom: Float): Double {
-    return 2000000 / pow(2.0, zoom.toDouble())
+fun zoomToDistance(zoom: Float, latitude: Double): Double {
+    return when {
+        zoom >= 20 -> 170.0     // Tested and working value
+        zoom >= 19 -> 340.0     // 2x larger distance
+        zoom >= 18 -> 500.0     // Reduced from 680 - roads were too small, so camera closer
+        zoom >= 17 -> 1000.0    // ~2x from 18
+        zoom >= 16 -> 2000.0    // ~2x from 17
+        zoom >= 15 -> 4000.0    // ~2x from 16
+        zoom >= 14 -> 8000.0    // ~2x from 15
+        zoom >= 13 -> 16000.0   // ~2x from 14
+        zoom >= 12 -> 32000.0   // ~2x from 13
+        zoom >= 11 -> 64000.0   // ~2x from 12
+        zoom >= 10 -> 128000.0  // ~2x from 11
+        zoom >= 9 -> 256000.0   // ~2x from 10
+        zoom >= 8 -> 512000.0   // ~2x from 9
+        zoom >= 7 -> 1024000.0  // ~2x from 8
+        zoom >= 6 -> 2048000.0  // ~2x from 7
+        zoom >= 5 -> 4096000.0  // ~2x from 6
+        zoom >= 4 -> 8192000.0  // ~2x from 5
+        zoom >= 3 -> 16384000.0 // ~2x from 4
+        zoom >= 2 -> 32768000.0 // ~2x from 3
+        zoom >= 1 -> 65536000.0 // ~2x from 2
+        else -> 131072000.0     // ~2x from 1
+    }
 }

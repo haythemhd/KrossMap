@@ -44,7 +44,7 @@ fun App() {
         val latitude = 32.60370
         val longitude = 70.92179
         val zoom = 19f
-        val tilt = 45f
+        val tilt = 0f
         var currentLocationMarker = remember {
             KrossMarker(
                 KrossCoordinate(latitude, longitude),

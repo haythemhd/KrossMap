@@ -33,6 +33,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import krossmapdemo.composeapp.generated.resources.Res
 import krossmapdemo.composeapp.generated.resources.ic_current_location
+import krossmapdemo.composeapp.generated.resources.ic_tracker
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -45,10 +47,11 @@ fun App() {
         val longitude = 70.92179
         val zoom = 17f
         val tilt = 0f
+
         var currentLocationMarker = remember {
             KrossMarker(
                 KrossCoordinate(latitude, longitude),
-                "Current"
+                icon = Res.drawable.ic_tracker
             )
         }
 
@@ -101,8 +104,6 @@ fun App() {
                 mapState.onUpdateLocation = {
                     currentLocationMarker = currentLocationMarker.copy(coordinate = it)
                     mapState.addOrUpdateMarker(currentLocationMarker)
-
-                    println("MyLocation: ${it}")
                     scope.launch {
                         cameraState.animateCamera(it.latitude, it.longitude, it.bearing)
                     }

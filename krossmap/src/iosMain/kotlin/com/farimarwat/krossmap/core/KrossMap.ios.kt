@@ -41,12 +41,8 @@ actual fun KrossMap(
         derivedStateOf { mapState.markers.toList() }
     }
 
-    mapState.setCameraPositionState(cameraPositionState)
-
     LaunchedEffect(cameraPositionState.currentCameraPosition) {
-        println("MyPosition: Working")
         cameraPositionState.currentCameraPosition?.let { position ->
-            println("MyPosition: ${position}")
             cameraPositionState.animateCamera(
                 position.latitude,
                 position.longitude

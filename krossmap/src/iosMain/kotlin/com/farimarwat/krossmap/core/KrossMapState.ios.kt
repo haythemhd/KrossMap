@@ -29,8 +29,6 @@ actual class KrossMapState {
 
     actual var onUpdateLocation:(KrossCoordinate)-> Unit = {  }
 
-
-    actual var krossMapCameraPositionState: KrossCameraPositionState? = null
     private val locationManager = CLLocationManager()
 
 
@@ -43,10 +41,6 @@ actual class KrossMapState {
                 coordinate.useContents {
                     onUpdateLocation.invoke(KrossCoordinate(latitude,longitude))
                     if (currentLocationRequested) {
-                        krossMapCameraPositionState?.currentCameraPosition = KrossCoordinate(
-                            latitude = latitude,
-                            longitude = longitude
-                        )
                         stopLocationUpdate()
                         currentLocationRequested = false
                     }
@@ -99,8 +93,6 @@ actual class KrossMapState {
     internal actual var currentLocationRequested: Boolean = false
 
     actual fun requestCurrentLocation() {
-        println("CurrentState: Request started")
-        krossMapCameraPositionState?.currentCameraPosition = null
         currentLocationRequested = true
         startLocationUpdate()
     }
@@ -126,9 +118,6 @@ actual class KrossMapState {
         locationManager.stopUpdatingLocation()
     }
 
-    internal actual fun setCameraPositionState(state: KrossCameraPositionState) {
-        this.krossMapCameraPositionState = state
-    }
 
 }
 

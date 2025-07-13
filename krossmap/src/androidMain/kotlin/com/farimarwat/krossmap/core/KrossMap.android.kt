@@ -32,18 +32,6 @@ actual fun KrossMap(
     mapSettings: @Composable () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        mapState.setCameraPositionState(cameraPositionState)
-
-        LaunchedEffect(cameraPositionState.currentCameraPosition) {
-            cameraPositionState.currentCameraPosition?.let { position ->
-                println("MyPosition: ${position}")
-                cameraPositionState.animateCamera(
-                    position.latitude,
-                    position.longitude
-                )
-            }
-        }
-
         GoogleMap(
             cameraPositionState = cameraPositionState.googleCameraPositionState
                 ?: rememberCameraPositionState(),

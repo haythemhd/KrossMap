@@ -43,7 +43,8 @@ fun App() {
     MaterialTheme {
         val latitude = 32.60370
         val longitude = 70.92179
-        val zoom = 18f
+        val zoom = 19f
+        val tilt = 45f
         var currentLocationMarker = remember {
             KrossMarker(
                 KrossCoordinate(latitude, longitude),
@@ -57,6 +58,8 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+
+            val scope = rememberCoroutineScope()
 
             var permissionGranted by remember { mutableStateOf(false) }
             val permissionFactory = rememberPermissionsControllerFactory()
@@ -90,15 +93,30 @@ fun App() {
             val mapState = rememberKrossMapState()
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
-                latitude, longitude, zoom
+                latitude, longitude, zoom, tilt
             )
 
             LaunchedEffect(Unit) {
-                mapState.startLocationUpdate()
+                //mapState.startLocationUpdate()
                 mapState.onUpdateLocation = {
                     currentLocationMarker = currentLocationMarker.copy(coordinate = it)
                     mapState.addOrUpdateMarker(currentLocationMarker)
                     cameraState.currentCameraPosition = it
+                    println("MyLocation: ${it}")
+                    scope.launch {
+                        cameraState.animateCamera(it.latitude, it.longitude)
+                    }
+                }
+            }
+
+            //Animate camera when camera position change is detected
+            LaunchedEffect(cameraState.currentCameraPosition) {
+                cameraState.currentCameraPosition?.let { position ->
+                    println("MyPosition: ${position}")
+                    cameraState.animateCamera(
+                        position.latitude,
+                        position.longitude
+                    )
                 }
             }
             LaunchedEffect(Unit) {
@@ -118,7 +136,7 @@ fun App() {
                     },
                     title = "Route",
                     color = Color.Blue,
-                    width = 24f
+                    width = 70f
                 )
 
                 mapState.addPolyLine(polyline)

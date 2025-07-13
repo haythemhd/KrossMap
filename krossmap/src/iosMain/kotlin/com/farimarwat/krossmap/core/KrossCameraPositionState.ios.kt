@@ -21,7 +21,7 @@ actual class KrossCameraPositionState(
 
     actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
     private var mapView: MKMapView? = null
-    private var camera: MKMapCamera? = null
+    private lateinit var camera: MKMapCamera
 
 
     @OptIn(ExperimentalForeignApi::class)
@@ -35,7 +35,7 @@ actual class KrossCameraPositionState(
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
         val distance = zoomToDistance(zoom)
 
-        val camera = MKMapCamera.cameraLookingAtCenterCoordinate(
+        camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
             fromDistance = distance,
             pitch = tilt.toDouble(),
@@ -56,7 +56,7 @@ actual class KrossCameraPositionState(
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
         val distance = zoomToDistance(zoom)
 
-        val camera = MKMapCamera.cameraLookingAtCenterCoordinate(
+         camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
             fromDistance = distance,
             pitch = tilt.toDouble(),
@@ -101,7 +101,8 @@ actual class KrossCameraPositionState(
 actual fun rememberKrossCameraPositionState(
     latitude: Double,
     longitude: Double,
-    zoom: Float
+    zoom: Float,
+    tilt: Float
 ): KrossCameraPositionState {
     val state =  remember { KrossCameraPositionState(
         latitude, longitude

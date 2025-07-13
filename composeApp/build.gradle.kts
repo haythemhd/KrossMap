@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(project(":krossmap"))
+            //implementation("io.github.farimarwat:krossmap:1.0")
 
             //moko permission
             implementation(libs.moko.permissions)

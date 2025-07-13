@@ -74,10 +74,15 @@ actual class KrossCameraPositionState(
 actual fun rememberKrossCameraPositionState(
     latitude: Double,
     longitude: Double,
-    zoom: Float
+    zoom: Float,
+    tilt: Float
 ): KrossCameraPositionState {
     val googleCameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(latitude,longitude),zoom)
+        position = CameraPosition.builder()
+            .target(LatLng(latitude,longitude))
+            .zoom(zoom)
+            .tilt(tilt)
+            .build()
     }
     return remember { KrossCameraPositionState(googleCameraPositionState) }
 }

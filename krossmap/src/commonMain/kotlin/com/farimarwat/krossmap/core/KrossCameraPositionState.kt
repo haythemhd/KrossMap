@@ -29,5 +29,6 @@ expect class KrossCameraPositionState {
 expect fun  rememberKrossCameraPositionState(
     latitude: Double,
     longitude: Double,
-    zoom: Float
+    zoom: Float,
+    tilt: Float
 ):KrossCameraPositionState

@@ -36,9 +36,11 @@ This defines the initial position and zoom level of the map:
 
 ```kotlin
 val cameraState = rememberKrossCameraPositionState(
-    latitude = 32.60370,
-    longitude = 70.92179,
-    zoom = 18f
+    latitude = 32.60370,      // Latitude of the location
+    longitude = 70.92179,     // Longitude of the location
+    zoom = 18f,               // Zoom level (higher = closer)
+    tilt = 45f,               // Tilt angle of the camera (0 = top-down, 90 = side view)
+    bearing = 0f              // Direction the camera is facing (0 = north)
 )
 ```
 ### 2️⃣ Create Map State

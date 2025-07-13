@@ -35,7 +35,7 @@ actual class KrossCameraPositionState(
         tilt: Float
     ) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom, latitude)
+        val distance = zoomToDistance(zoom)
 
         camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -56,7 +56,7 @@ actual class KrossCameraPositionState(
         tilt: Float
     ) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom, latitude)
+        val distance = zoomToDistance(zoom)
 
         camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -104,7 +104,7 @@ actual fun rememberKrossCameraPositionState(
 ): KrossCameraPositionState {
     val state = remember {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom, latitude)
+        val distance = zoomToDistance(zoom)
 
         val camera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -118,7 +118,7 @@ actual fun rememberKrossCameraPositionState(
     }
     return state
 }
-fun zoomToDistance(zoom: Float, latitude: Double): Double {
+fun zoomToDistance(zoom: Float): Double {
     return when {
         zoom >= 20 -> 170.0     // Tested and working value
         zoom >= 19 -> 340.0     // 2x larger distance

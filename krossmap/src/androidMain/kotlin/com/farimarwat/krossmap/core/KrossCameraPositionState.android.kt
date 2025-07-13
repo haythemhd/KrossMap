@@ -75,7 +75,8 @@ actual fun rememberKrossCameraPositionState(
     latitude: Double,
     longitude: Double,
     zoom: Float,
-    tilt: Float
+    tilt: Float,
+    bearing: Float
 ): KrossCameraPositionState {
     val googleCameraPositionState = rememberCameraPositionState{
         position = CameraPosition.builder()

@@ -2,10 +2,7 @@ package com.farimarwat.krossmap.core
 
 import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import kotlin.math.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,36 +12,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.farimarwat.krossmap.model.KrossMarker
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 actual fun KrossMap(
@@ -59,11 +49,26 @@ actual fun KrossMap(
                 ?: rememberCameraPositionState(),
             uiSettings = MapUiSettings(zoomControlsEnabled = false)
         ) {
+
+            val currentTilt by remember {
+                derivedStateOf {
+                    cameraPositionState.googleCameraPositionState?.position?.tilt ?: 0f
+                }
+            }
+            val currentBearing by remember {
+                derivedStateOf {
+                    cameraPositionState.googleCameraPositionState?.position?.bearing ?: 0f
+                }
+            }
             // Use the markers list directly without derivedStateOf
             mapState.markers.forEach { marker ->
                 // Use a stable, unique key (assuming title is unique)
                 key(marker.title) {
-                    AnimatedMarker(marker = marker)
+                    AnimatedMarker(
+                        marker = marker,
+                        cameraTilt = currentTilt,
+                        cameraBearing = currentBearing
+                    )
                 }
             }
 
@@ -86,7 +91,7 @@ actual fun KrossMap(
 }
 
 @Composable
-private fun AnimatedMarker(marker: KrossMarker) {
+private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing: Float) {
     // Create MarkerState only once, keyed by marker title (unique identifier)
     val markerState = remember(marker.title) {
         MarkerState(position = LatLng(marker.coordinate.latitude, marker.coordinate.longitude))
@@ -116,11 +121,16 @@ private fun AnimatedMarker(marker: KrossMarker) {
         markerState.position = LatLng(latAnim.value.toDouble(), lngAnim.value.toDouble())
     }
 
-    MarkerComposable(state = markerState) {
+    MarkerComposable(
+        state = markerState,
+        flat = cameraTilt > 0f,
+        rotation = cameraBearing
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.wrapContentSize()
-        ) {
+            modifier = Modifier
+                .wrapContentSize()
+        )  {
             // Icon
             marker.icon?.let { data ->
                 val bitmap = remember(data) {

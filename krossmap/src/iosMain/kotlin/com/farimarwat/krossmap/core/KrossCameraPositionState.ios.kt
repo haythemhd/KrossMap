@@ -24,50 +24,6 @@ actual class KrossCameraPositionState(
     actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
     private var mapView: MKMapView? = null
 
-
-
-    @OptIn(ExperimentalForeignApi::class)
-    actual suspend fun animateTo(
-        latitude: Double,
-        longitude: Double,
-        zoom: Float,
-        bearing: Float,
-        tilt: Float
-    ) {
-        val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom)
-
-        camera = MKMapCamera.cameraLookingAtCenterCoordinate(
-            centerCoordinate = coordinate,
-            fromDistance = distance,
-            pitch = tilt.toDouble(),
-            heading = bearing.toDouble()
-        )
-
-        mapView?.setCamera(camera, animated = true)
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    actual fun moveTo(
-        latitude: Double,
-        longitude: Double,
-        zoom: Float,
-        bearing: Float,
-        tilt: Float
-    ) {
-        val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
-        val distance = zoomToDistance(zoom)
-
-        camera = MKMapCamera.cameraLookingAtCenterCoordinate(
-            centerCoordinate = coordinate,
-            fromDistance = distance,
-            pitch = tilt.toDouble(),
-            heading = bearing.toDouble()
-        )
-
-        mapView?.setCamera(camera, animated = false)
-    }
-
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float) {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)

@@ -18,42 +18,6 @@ actual class KrossCameraPositionState(
 ) {
 
     actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
-    actual suspend fun animateTo(
-        latitude: Double,
-        longitude: Double,
-        zoom: Float,
-        bearing: Float,
-        tilt: Float
-    ) {
-        val cameraUpdate = CameraUpdateFactory.newCameraPosition(
-            CameraPosition.Builder()
-                .target(LatLng(latitude, longitude))
-                .zoom(zoom)
-                .bearing(bearing)
-                .tilt(tilt)
-                .build()
-        )
-        googleCameraPositionState?.animate(cameraUpdate)
-    }
-
-    actual fun moveTo(
-        latitude: Double,
-        longitude: Double,
-        zoom: Float,
-        bearing: Float,
-        tilt: Float
-    ) {
-        googleCameraPositionState?.move(
-            update = CameraUpdateFactory.newCameraPosition(
-                CameraPosition(
-                    LatLng(latitude, longitude),
-                    zoom,
-                    tilt,
-                    bearing
-                )
-            )
-        )
-    }
     actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float){
         val position = googleCameraPositionState?.position
         position?.let { p ->

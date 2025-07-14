@@ -30,7 +30,7 @@ Follow these simple steps to get started with `KrossMap` in your Kotlin Multipla
 
 ---
 
-### 1️⃣ Create Camera State
+### 📝 Create Camera State
 
 This defines the initial position and zoom level of the map:
 
@@ -43,7 +43,7 @@ val cameraState = rememberKrossCameraPositionState(
     bearing = 0f              // Direction the camera is facing (0 = north)
 )
 ```
-### 2️⃣ Create Map State
+### 📝 Create Map State
 
 ```kotlin
 val mapState = rememberKrossMapState()
@@ -57,20 +57,71 @@ LaunchedEffect(Unit) {
 }
 ```
 
-### 3️⃣ Add Marker (Optional or Initial)
+### 📍 Custom Marker Icon in KrossMap
+
+In `KrossMap`, you define markers using the `KrossMarker` data class. This class includes an optional `icon` parameter of type `ByteArray?`, allowing you to pass in a custom image for the marker.
+
+---
+
+### 🧱 KrossMarker Data Class
+```kotlin
+data class KrossMarker(
+    var coordinate: KrossCoordinate,
+    val title: String = "",
+    val icon: ByteArray? = null // Nullable: provide icon or leave it null
+)
+```
+
+- `coordinate`: Specifies the location (latitude, longitude)
+- `title`: Optional title shown on the marker
+- `icon`: Optional marker icon as a `ByteArray` (nullable)
+
+---
+
+### ✅ How to Add a Marker with a Custom Icon
+You can add a marker like this:
 
 ```kotlin
 LaunchedEffect(Unit) {
-    val currentLocationMarker = remember {
+    val playerMarker = remember {
         KrossMarker(
-            coordinate = KrossCoordinate(32.60370, 70.92179),
-            title = "Current"
+            coordinate = KrossCoordinate(latitude = 32.60370, longitude = 70.92179),
+            title = "Player",
+            icon = Res.readBytes("drawable/ic_tracker.png") // Loads the image as ByteArray
         )
     }
-    mapState.addOrUpdateMarker(currentLocationMarker)
+    mapState.addOrUpdateMarker(playerMarker)
 }
 ```
-### 4️⃣ Add Polyline (Route)
+
+- `Res.readBytes("drawable/ic_tracker.png")` reads the image from your `resources/drawable` folder and converts it into a `ByteArray`.
+- This `ByteArray` is platform-agnostic and will be decoded natively:
+  - On **Android**, into a `Bitmap`.
+  - On **iOS**, into a `UIImage`.
+
+---
+
+### 📝 Notes
+- If `icon` is `null`, the default marker icon will be used.
+- Make sure the image path is correct and included in your `resources` folder.
+- This approach keeps your API clean and consistent across platforms.
+
+```kotlin
+// Simple marker without icon
+KrossMarker(
+    coordinate = KrossCoordinate(34.0151, 71.5249),
+    title = "Default Marker"
+)
+
+// Marker with custom image icon
+KrossMarker(
+    coordinate = KrossCoordinate(34.0151, 71.5249),
+    title = "Player",
+    icon = Res.readBytes("drawable/ic_tracker.png")
+)
+```
+
+### 📝 Add Polyline (Route)
 
 ```kotlin
 LaunchedEffect(Unit) {
@@ -90,7 +141,7 @@ LaunchedEffect(Unit) {
 }
 ```
 
-### 5️⃣ Show the Map
+###  📝 Show the Map
 
 ```kotlin
 KrossMap(

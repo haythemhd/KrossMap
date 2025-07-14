@@ -49,10 +49,7 @@ fun App() {
         val tilt = 0f
 
         var currentLocationMarker = remember {
-            KrossMarker(
-                KrossCoordinate(latitude, longitude),
-                icon = Res.drawable.ic_tracker
-            )
+            mutableStateOf<KrossMarker?>(null)
         }
 
         Column(
@@ -100,10 +97,19 @@ fun App() {
             )
 
             LaunchedEffect(Unit) {
+                currentLocationMarker.value =
+                    KrossMarker(
+                        coordinate = KrossCoordinate(latitude, longitude),
+                        icon = Res.readBytes("drawable/ic_tracker.png")
+                    )
+            }
+            LaunchedEffect(Unit) {
                 mapState.startLocationUpdate()
                 mapState.onUpdateLocation = {
-                    currentLocationMarker = currentLocationMarker.copy(coordinate = it)
-                    mapState.addOrUpdateMarker(currentLocationMarker)
+                    currentLocationMarker.value = currentLocationMarker.value?.copy(coordinate = it)
+                    currentLocationMarker.value?.let { cm ->
+                        mapState.addOrUpdateMarker(cm)
+                    }
                     scope.launch {
                         cameraState.animateCamera(it.latitude, it.longitude, it.bearing)
                     }
@@ -120,9 +126,9 @@ fun App() {
                     )
                 }
             }
-            LaunchedEffect(Unit) {
-                launch {
-                    mapState.addOrUpdateMarker(currentLocationMarker)
+            LaunchedEffect(currentLocationMarker) {
+                currentLocationMarker.value?.let { cm ->
+                    mapState.addOrUpdateMarker(cm)
                 }
             }
 

@@ -1,5 +1,6 @@
 package com.farimarwat.krossmap.core
 
+import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.farimarwat.krossmap.model.KrossMarker
@@ -112,12 +114,18 @@ private fun AnimatedMarker(marker: KrossMarker) {
             modifier = Modifier.wrapContentSize()
         ) {
             // Icon
-            marker.icon?.let { drawableResource ->
-                Image(
-                    painter = painterResource(drawableResource),
-                    contentDescription = marker.title,
-                    modifier = Modifier.size(40.dp)
-                )
+            marker.icon?.let { data ->
+                val bitmap = remember(data) {
+                    BitmapFactory.decodeByteArray(data, 0, data.size)?.asImageBitmap()
+                }
+
+                bitmap?.let { imageBitmap ->
+                    Image(
+                        bitmap = imageBitmap,
+                        contentDescription = marker.title,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
             }
 
             // Title

@@ -91,6 +91,20 @@ actual class KrossCameraPositionState(
         mapView?.setCamera(camera)
 
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    actual suspend fun changeTilt(tilt: Float) {
+        val currentCamera = mapView?.camera
+        val currentCoordinate = currentCamera?.centerCoordinate ?: return
+        val newCamera = MKMapCamera.cameraLookingAtCenterCoordinate(
+            centerCoordinate = currentCoordinate,
+            fromDistance = currentCamera?.altitude ?: 10000.0,
+            pitch = tilt.toDouble(),
+            heading = currentCamera.heading
+        )
+
+        mapView?.setCamera(newCamera, animated = true)
+    }
 }
 
 @OptIn(ExperimentalForeignApi::class)

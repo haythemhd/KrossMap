@@ -68,6 +68,21 @@ actual class KrossCameraPositionState(
             googleCameraPositionState.animate(cameraUpdate)
         }
     }
+
+    actual suspend fun changeTilt(tilt: Float) {
+        val position = googleCameraPositionState?.position
+        position?.let { p ->
+            val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                CameraPosition.Builder()
+                    .target(LatLng(position.target.latitude, position.target.longitude))
+                    .zoom(p.zoom)
+                    .bearing(position.bearing)
+                    .tilt(tilt)
+                    .build()
+            )
+            googleCameraPositionState.animate(cameraUpdate)
+        }
+    }
 }
 
 @Composable

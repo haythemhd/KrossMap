@@ -1,6 +1,7 @@
 package com.farimarwat.krossmapdemo
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,9 +33,10 @@ import dev.icerock.moko.permissions.location.LOCATION
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import krossmapdemo.composeapp.generated.resources.Res
+import krossmapdemo.composeapp.generated.resources.ic_3d
+import krossmapdemo.composeapp.generated.resources.ic_3d_view
+import krossmapdemo.composeapp.generated.resources.ic_3d_view_cross
 import krossmapdemo.composeapp.generated.resources.ic_current_location
-import krossmapdemo.composeapp.generated.resources.ic_tracker
-import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -46,7 +48,7 @@ fun App() {
         val latitude = 32.60370
         val longitude = 70.92179
         val zoom = 17f
-        val tilt = 0f
+        var tilt by remember { mutableStateOf(60f)}
 
         var currentLocationMarker = remember {
             mutableStateOf<KrossMarker?>(null)
@@ -100,6 +102,7 @@ fun App() {
                 currentLocationMarker.value =
                     KrossMarker(
                         coordinate = KrossCoordinate(latitude, longitude),
+                        title = "Player",
                         icon = Res.readBytes("drawable/ic_tracker.png")
                     )
             }
@@ -159,7 +162,18 @@ fun App() {
                         MapSettings(
                             onCurrentLocationClicked = {
                                 mapState.requestCurrentLocation()
-                            }
+                            },
+                            toggle3DViewClicked = {
+                                tilt = if(tilt > 0 ){
+                                    0f
+                                } else {
+                                    60f
+                                }
+                                scope.launch {
+                                    cameraState.changeTilt(tilt)
+                                }
+                            },
+                            tilt = tilt
                         )
                     }
                 )
@@ -171,10 +185,13 @@ fun App() {
 
 @Composable
 fun MapSettings(
-    onCurrentLocationClicked: () -> Unit = {}
+    onCurrentLocationClicked: () -> Unit = {},
+    toggle3DViewClicked: () -> Unit = {},
+    tilt: Float
 ) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         IconButton(
             modifier = Modifier
@@ -184,7 +201,30 @@ fun MapSettings(
             onClick = onCurrentLocationClicked
         ) {
             Icon(
+                modifier = Modifier
+                    .size(24.dp),
                 painter = painterResource(Res.drawable.ic_current_location),
+                contentDescription = "Current Location",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Blue),
+            onClick = toggle3DViewClicked
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                painter = painterResource(
+                    if(tilt > 0){
+                        Res.drawable.ic_3d_view_cross
+                    } else {
+                        Res.drawable.ic_3d_view
+                    }
+                ),
                 contentDescription = "Current Location",
                 tint = Color.White
             )

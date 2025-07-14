@@ -20,6 +20,7 @@ import kotlinx.cinterop.useContents
 import kotlinx.coroutines.delay
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
+import platform.Foundation.setValue
 import platform.MapKit.MKMapView
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKPolyline
@@ -88,6 +89,7 @@ actual fun KrossMap(
                 val annotation = MKPointAnnotation()
                 annotation.setCoordinate(targetCoordinate)
                 annotation.setTitle(item.title)
+                mapDelegate.storeIconData(item.title,item.icon)
                 mapView.addAnnotation(annotation)
             }
         }

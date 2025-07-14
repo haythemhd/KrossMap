@@ -1,15 +1,69 @@
 package com.farimarwat.krossmap.core
 
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
+import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSData
+import platform.Foundation.create
+import platform.MapKit.MKAnnotationProtocol
+import platform.MapKit.MKAnnotationView
 import platform.MapKit.MKMapView
 import platform.MapKit.MKMapViewDelegateProtocol
 import platform.MapKit.MKOverlayProtocol
 import platform.MapKit.MKOverlayRenderer
+import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKPolyline
 import platform.MapKit.MKPolylineRenderer
 import platform.UIKit.UIColor
+import platform.UIKit.UIImage
 import platform.darwin.NSObject
 
 class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
+
+
+    // Create a map to store icon data by annotation title
+    private val annotationIcons = mutableMapOf<String, ByteArray>()
+
+    // Add this method to store icon data when markers are created
+    fun storeIconData(title: String, iconData: ByteArray?) {
+        iconData?.let {
+            annotationIcons[title] = it
+        }
+    }
+
+    // Corrected method signature with MKAnnotationProtocol
+    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+    override fun mapView(mapView: MKMapView, viewForAnnotation: MKAnnotationProtocol): MKAnnotationView? {
+        if (viewForAnnotation is MKPointAnnotation) {
+            val identifier = "CustomMarker"
+            var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
+
+            if (annotationView == null) {
+                annotationView = MKAnnotationView(viewForAnnotation, identifier)
+                annotationView.canShowCallout = true
+            } else {
+                annotationView.annotation = viewForAnnotation
+            }
+
+            // Get the icon data from the map using the title
+            val title = viewForAnnotation.title()
+            val iconData = annotationIcons[title]
+
+            iconData?.let { data ->
+                val nsData = data.usePinned { pinned ->
+                    NSData.create(bytes = pinned.addressOf(0), length = data.size.toULong())
+                }
+                val uiImage = UIImage.imageWithData(nsData)
+                annotationView.image = uiImage
+                annotationView.setFrame(CGRectMake(0.0, 0.0, 40.0, 40.0))
+            }
+
+            return annotationView
+        }
+        return null
+    }
 
     /**
      * Alternative approach: Use a scaling factor based on empirical testing

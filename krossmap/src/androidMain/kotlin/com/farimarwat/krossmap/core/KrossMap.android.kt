@@ -124,7 +124,7 @@ private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing
     MarkerComposable(
         state = markerState,
         flat = cameraTilt > 0f,
-        rotation = cameraBearing
+        rotation = if(cameraTilt > 0f) cameraBearing else 0f
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

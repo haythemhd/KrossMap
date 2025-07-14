@@ -37,6 +37,8 @@ import krossmapdemo.composeapp.generated.resources.ic_3d
 import krossmapdemo.composeapp.generated.resources.ic_3d_view
 import krossmapdemo.composeapp.generated.resources.ic_3d_view_cross
 import krossmapdemo.composeapp.generated.resources.ic_current_location
+import krossmapdemo.composeapp.generated.resources.ic_direction
+import krossmapdemo.composeapp.generated.resources.ic_direction_cross
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -50,9 +52,11 @@ fun App() {
         val zoom = 17f
         var tilt by remember { mutableStateOf(60f)}
 
-        var currentLocationMarker = remember {
+        val currentLocationMarker = remember {
             mutableStateOf<KrossMarker?>(null)
         }
+
+        var navigation by remember { mutableStateOf(false)}
 
         Column(
             modifier = Modifier
@@ -107,7 +111,6 @@ fun App() {
                     )
             }
             LaunchedEffect(Unit) {
-                mapState.startLocationUpdate()
                 mapState.onUpdateLocation = {
                     currentLocationMarker.value = currentLocationMarker.value?.copy(coordinate = it)
                     currentLocationMarker.value?.let { cm ->
@@ -116,6 +119,13 @@ fun App() {
                     scope.launch {
                         cameraState.animateCamera(it.latitude, it.longitude, it.bearing)
                     }
+                }
+            }
+            LaunchedEffect(navigation){
+                if(navigation){
+                    mapState.startLocationUpdate()
+                } else {
+                    mapState.stopLocationUpdate()
                 }
             }
 
@@ -160,6 +170,8 @@ fun App() {
                     cameraPositionState = cameraState,
                     mapSettings = {
                         MapSettings(
+                            tilt = tilt,
+                            navigation = navigation,
                             onCurrentLocationClicked = {
                                 mapState.requestCurrentLocation()
                             },
@@ -173,7 +185,9 @@ fun App() {
                                     cameraState.changeTilt(tilt)
                                 }
                             },
-                            tilt = tilt
+                            toggleNavigation = {
+                                navigation = !navigation
+                            }
                         )
                     }
                 )
@@ -185,9 +199,11 @@ fun App() {
 
 @Composable
 fun MapSettings(
+    tilt: Float,
+    navigation: Boolean,
     onCurrentLocationClicked: () -> Unit = {},
     toggle3DViewClicked: () -> Unit = {},
-    tilt: Float
+    toggleNavigation:()-> Unit = {}
 ) {
     Column(
         modifier = Modifier.padding(16.dp),
@@ -223,6 +239,27 @@ fun MapSettings(
                         Res.drawable.ic_3d_view_cross
                     } else {
                         Res.drawable.ic_3d_view
+                    }
+                ),
+                contentDescription = "Current Location",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Blue),
+            onClick = toggleNavigation
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                painter = painterResource(
+                    if(navigation){
+                        Res.drawable.ic_direction_cross
+                    } else {
+                        Res.drawable.ic_direction
                     }
                 ),
                 contentDescription = "Current Location",

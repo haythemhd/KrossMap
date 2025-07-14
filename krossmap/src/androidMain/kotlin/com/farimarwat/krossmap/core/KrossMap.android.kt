@@ -2,7 +2,10 @@ package com.farimarwat.krossmap.core
 
 import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import kotlin.math.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -84,31 +87,36 @@ actual fun KrossMap(
 
 @Composable
 private fun AnimatedMarker(marker: KrossMarker) {
-    val latAnim = remember { Animatable(marker.coordinate.latitude.toFloat()) }
-    val lngAnim = remember { Animatable(marker.coordinate.longitude.toFloat()) }
+    // Create MarkerState only once, keyed by marker title (unique identifier)
+    val markerState = remember(marker.title) {
+        MarkerState(position = LatLng(marker.coordinate.latitude, marker.coordinate.longitude))
+    }
+
+    val latAnim = remember(marker.title) { Animatable(marker.coordinate.latitude.toFloat()) }
+    val lngAnim = remember(marker.title) { Animatable(marker.coordinate.longitude.toFloat()) }
 
     LaunchedEffect(marker.coordinate) {
+        // Launch both animations concurrently
         launch {
             latAnim.animateTo(
                 marker.coordinate.latitude.toFloat(),
-                animationSpec = tween(durationMillis = 1000)
+                animationSpec = tween(durationMillis = 2000)
             )
         }
         launch {
             lngAnim.animateTo(
                 marker.coordinate.longitude.toFloat(),
-                animationSpec = tween(durationMillis = 1000)
+                animationSpec = tween(durationMillis = 2000)
             )
         }
     }
 
-    val animatedLatLng = LatLng(latAnim.value.toDouble(), lngAnim.value.toDouble())
+    // Update marker position as animation progresses
+    LaunchedEffect(latAnim.value, lngAnim.value) {
+        markerState.position = LatLng(latAnim.value.toDouble(), lngAnim.value.toDouble())
+    }
 
-    MarkerComposable(
-        state = remember { MarkerState(position = animatedLatLng) }.apply {
-            position = animatedLatLng
-        }
-    ) {
+    MarkerComposable(state = markerState) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.wrapContentSize()
@@ -145,5 +153,4 @@ private fun AnimatedMarker(marker: KrossMarker) {
         }
     }
 }
-
 

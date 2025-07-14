@@ -94,8 +94,8 @@ actual class KrossMapState(
                     LocationServices.getFusedLocationProviderClient(context)
             }
             val locationRequest = LocationRequest.create().apply {
-                interval = 5000
-                fastestInterval = 2000
+                interval = 2000
+                fastestInterval = 1000
                 priority = Priority.PRIORITY_HIGH_ACCURACY
             }
 

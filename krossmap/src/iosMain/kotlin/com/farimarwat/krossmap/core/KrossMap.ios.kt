@@ -89,7 +89,6 @@ actual fun KrossMap(
                 val annotation = MKPointAnnotation()
                 annotation.setCoordinate(targetCoordinate)
                 annotation.setTitle(item.title)
-                mapDelegate.storeIconData(item.title,item.icon)
                 mapView.addAnnotation(annotation)
             }
         }

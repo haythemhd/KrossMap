@@ -23,16 +23,6 @@ import platform.darwin.NSObject
 class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
 
 
-    // Create a map to store icon data by annotation title
-    private val annotationIcons = mutableMapOf<String, ByteArray>()
-
-    // Add this method to store icon data when markers are created
-    fun storeIconData(title: String, iconData: ByteArray?) {
-        iconData?.let {
-            annotationIcons[title] = it
-        }
-    }
-
     // Corrected method signature with MKAnnotationProtocol
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     override fun mapView(mapView: MKMapView, viewForAnnotation: MKAnnotationProtocol): MKAnnotationView? {
@@ -49,9 +39,9 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
 
             // Get the icon data from the map using the title
             val title = viewForAnnotation.title()
-            val iconData = annotationIcons[title]
+            val annotation = mapState.markers.firstOrNull{it.title == title}
 
-            iconData?.let { data ->
+            annotation?.icon?.let { data ->
                 val nsData = data.usePinned { pinned ->
                     NSData.create(bytes = pinned.addressOf(0), length = data.size.toULong())
                 }

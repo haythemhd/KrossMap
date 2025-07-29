@@ -53,6 +53,10 @@ actual fun KrossMap(
 
     LaunchedEffect(Unit) {
         cameraPositionState.setMapView(mapView)
+        mapDelegate.setMapView(mapView)
+    }
+    LaunchedEffect(mapState.currentLocation?.bearing) {
+        mapDelegate.updateMarkerBearings()
     }
 
     // Animated marker updates

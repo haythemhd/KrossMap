@@ -117,11 +117,11 @@ fun App() {
                         mapState.addOrUpdateMarker(cm)
                     }
                     scope.launch {
-                        cameraState.animateCamera(
+                       /* cameraState.animateCamera(
                             latitude = it.latitude,
                             longitude = it.longitude,
                             bearing = it.bearing
-                        )
+                        )*/
                     }
                 }
             }

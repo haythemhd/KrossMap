@@ -25,7 +25,12 @@ import platform.darwin.NSObject
 import kotlin.math.PI
 
 class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
+    private var mapView: MKMapView? = null
 
+    // Store reference to map view
+    fun setMapView(mapView: MKMapView) {
+        this.mapView = mapView
+    }
 
     // Corrected method signature with MKAnnotationProtocol
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
@@ -63,7 +68,20 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
         }
         return null
     }
-
+    @OptIn(ExperimentalForeignApi::class)
+    fun updateMarkerBearings() {
+        mapView?.annotations?.forEach { annotation ->
+            if (annotation is MKPointAnnotation) {
+                val annotationView = mapView?.viewForAnnotation(annotation)
+                annotationView?.let { view ->
+                    mapState.currentLocation?.let { location ->
+                        val bearingRadians = location.bearing * PI / 180.0
+                        view.transform = CGAffineTransformMakeRotation(bearingRadians)
+                    }
+                }
+            }
+        }
+    }
     /**
      * Alternative approach: Use a scaling factor based on empirical testing
      */

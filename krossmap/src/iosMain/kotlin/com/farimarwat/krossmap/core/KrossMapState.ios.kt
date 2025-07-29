@@ -53,7 +53,9 @@ actual class KrossMapState {
                     }
 
                     val newCoordinates = KrossCoordinate(latitude,longitude,bearing)
+                    println(newCoordinates)
                     onUpdateLocation.invoke(newCoordinates)
+                    currentLocation = newCoordinates
                     if (currentLocationRequested) {
                         stopLocationUpdate()
                         currentLocationRequested = false

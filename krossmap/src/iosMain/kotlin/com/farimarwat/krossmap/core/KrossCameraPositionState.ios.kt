@@ -18,12 +18,13 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.ln
 import kotlin.math.log2
+import kotlin.math.pow
 
 actual class KrossCameraPositionState(
     private var camera: MKMapCamera
 ) {
     private var mapView: MKMapView? = null
-
+    private var baseDistance: Double = 15000.0
 
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun animateCamera(
@@ -34,13 +35,14 @@ actual class KrossCameraPositionState(
         zoom: Float?,
         durationMillis: Int
     ) {
-
         val currentCamera = mapView?.camera ?: return
         val currentCoordinate = currentCamera.centerCoordinate ?: return
         val (lat, lng) = currentCoordinate.useContents { this.latitude to this.longitude }
 
         val coordinate = CLLocationCoordinate2DMake(latitude ?: lat, longitude ?: lng)
-        val distance = zoom?.let { zoomToDistance(it) } ?: currentCamera.altitude
+
+        // Always calculate distance from base distance, not current distance
+        val distance = zoom?.let { zoomToDistanceFromBase(it) } ?: currentCamera.centerCoordinateDistance
 
         val newCamera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -52,12 +54,18 @@ actual class KrossCameraPositionState(
         mapView?.setCamera(newCamera, animated = true)
     }
 
+    private fun zoomToDistanceFromBase(zoom: Float): Double {
+        // Calculate distance based on base distance, not current distance
+        // Adjust this formula based on your zoom scale
+        return baseDistance / (2.0.pow(zoom.toDouble() - 10.0)) // Assuming zoom 10 = base distance
+    }
+
 
     @OptIn(ExperimentalForeignApi::class)
     internal fun setMapView(map: MKMapView) {
         mapView = map
         mapView?.setCamera(camera)
-
+        baseDistance = mapView?.camera?.centerCoordinateDistance ?: 15000.0
     }
 
 

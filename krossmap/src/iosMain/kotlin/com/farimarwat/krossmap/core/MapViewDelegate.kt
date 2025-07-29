@@ -57,11 +57,6 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                 val uiImage = UIImage.imageWithData(nsData)
                 annotationView.image = uiImage
                 annotationView.setFrame(CGRectMake(0.0, 0.0, 40.0, 40.0))
-                mapState.currentLocation?.let { it ->
-                    val bearing = it.bearing
-                    val bearingRadians = bearing * PI / 180.0
-                    annotationView.transform = CGAffineTransformMakeRotation(bearingRadians)
-                }
             }
 
             return annotationView
@@ -75,7 +70,13 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                 val annotationView = mapView?.viewForAnnotation(annotation)
                 annotationView?.let { view ->
                     mapState.currentLocation?.let { location ->
-                        val bearingRadians = location.bearing * PI / 180.0
+                        // Your bearing: 0°=North, 90°=East, 180°=South, 270°=West
+                        // iOS rotation: 0°=East, 90°=South, 180°=West, 270°=North
+                        // Subtract 90° to align: North bearing (0°) -> iOS North rotation (-90°/270°)
+                        val adjustedBearing = location.bearing + 90.0
+                        val bearingRadians = adjustedBearing * PI / 180.0
+
+                        println("Geographic bearing: ${location.bearing}°, iOS rotation: ${adjustedBearing}°")
                         view.transform = CGAffineTransformMakeRotation(bearingRadians)
                     }
                 }

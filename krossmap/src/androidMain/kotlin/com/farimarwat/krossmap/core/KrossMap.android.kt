@@ -2,6 +2,8 @@ package com.farimarwat.krossmap.core
 
 import android.graphics.BitmapFactory
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +20,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -89,46 +93,41 @@ actual fun KrossMap(
 
 @Composable
 private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing: Float) {
-    // Create MarkerState only once, keyed by marker title (unique identifier)
     println("Marker Animating: ${marker.title}")
-    val markerState = remember(marker.title) {
-        MarkerState(position = LatLng(marker.coordinate.latitude, marker.coordinate.longitude))
-    }
 
-    val latAnim = remember(marker.title) { Animatable(marker.coordinate.latitude.toFloat()) }
-    val lngAnim = remember(marker.title) { Animatable(marker.coordinate.longitude.toFloat()) }
+    val targetPosition = LatLng(marker.coordinate.latitude, marker.coordinate.longitude)
+    var currentPosition by remember { mutableStateOf(targetPosition) }
+    var animStartPosition by remember { mutableStateOf(targetPosition) }
 
-    LaunchedEffect(marker.coordinate) {
-        // Launch both animations concurrently
-        launch {
-            latAnim.animateTo(
-                marker.coordinate.latitude.toFloat(),
-                animationSpec = tween(durationMillis = 2000)
-            )
+    val animationDuration = 1000
+
+    LaunchedEffect(targetPosition) {
+        if (targetPosition != currentPosition) {
+            animStartPosition = currentPosition
+
+            animate(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec = tween(animationDuration, easing = LinearEasing)
+            ) { value, _ ->
+                currentPosition = LatLng(
+                    animStartPosition.latitude + (targetPosition.latitude - animStartPosition.latitude) * value.toDouble(),
+                    animStartPosition.longitude + (targetPosition.longitude - animStartPosition.longitude) * value.toDouble()
+                )
+            }
         }
-        launch {
-            lngAnim.animateTo(
-                marker.coordinate.longitude.toFloat(),
-                animationSpec = tween(durationMillis = 2000)
-            )
-        }
     }
 
-    // Update marker position as animation progresses
-    LaunchedEffect(latAnim.value, lngAnim.value) {
-        markerState.position = LatLng(latAnim.value.toDouble(), lngAnim.value.toDouble())
-    }
-
+    // Always show the marker at currentPosition (the interpolated position)
     MarkerComposable(
-        state = markerState,
+        state = remember(currentPosition) { MarkerState(position = currentPosition) },
         flat = cameraTilt > 0f,
         rotation = if(cameraTilt > 0f) cameraBearing else 0f
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .wrapContentSize()
-        )  {
+            modifier = Modifier.wrapContentSize()
+        ) {
             // Icon
             marker.icon?.let { data ->
                 val bitmap = remember(data) {

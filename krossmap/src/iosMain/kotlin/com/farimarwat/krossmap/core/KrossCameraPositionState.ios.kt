@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.farimarwat.krossmap.model.KrossCoordinate
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.MapKit.MKCoordinateRegionMakeWithDistance
@@ -15,34 +16,42 @@ import platform.MapKit.MKMapView
 import platform.posix.pow
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.log2
 
 actual class KrossCameraPositionState(
     private var camera: MKMapCamera
 ) {
-
-    actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
     private var mapView: MKMapView? = null
-
-    private var originalDistance: Double = camera.altitude
 
 
     @OptIn(ExperimentalForeignApi::class)
-    actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float) {
-        val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
+    actual suspend fun animateCamera(
+        latitude: Double?,
+        longitude: Double?,
+        bearing: Float?,
+        tilt: Float?,
+        zoom: Float?,
+        durationMillis: Int
+    ) {
 
-        // Get current camera to preserve zoom, tilt, and bearing
-        val currentCamera = mapView?.camera
+        val currentCamera = mapView?.camera ?: return
+        val currentCoordinate = currentCamera.centerCoordinate ?: return
+        val (lat, lng) = currentCoordinate.useContents { this.latitude to this.longitude }
+
+        val coordinate = CLLocationCoordinate2DMake(latitude ?: lat, longitude ?: lng)
+        val distance = zoom?.let { zoomToDistance(it) } ?: currentCamera.altitude
 
         val newCamera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
-            fromDistance = originalDistance,
-            pitch = currentCamera?.pitch ?: 0.0,
-            heading = bearing.toDouble()
+            fromDistance = distance,
+            pitch = tilt?.toDouble() ?: currentCamera.pitch,
+            heading = bearing?.toDouble() ?: currentCamera.heading
         )
 
         mapView?.setCamera(newCamera, animated = true)
     }
+
 
     @OptIn(ExperimentalForeignApi::class)
     internal fun setMapView(map: MKMapView) {
@@ -51,19 +60,7 @@ actual class KrossCameraPositionState(
 
     }
 
-    @OptIn(ExperimentalForeignApi::class)
-    actual suspend fun changeTilt(tilt: Float) {
-        val currentCamera = mapView?.camera
-        val currentCoordinate = currentCamera?.centerCoordinate ?: return
-        val newCamera = MKMapCamera.cameraLookingAtCenterCoordinate(
-            centerCoordinate = currentCoordinate,
-            fromDistance = originalDistance,
-            pitch = tilt.toDouble(),
-            heading = currentCamera.heading
-        )
 
-        mapView?.setCamera(newCamera, animated = true)
-    }
 }
 
 @OptIn(ExperimentalForeignApi::class)

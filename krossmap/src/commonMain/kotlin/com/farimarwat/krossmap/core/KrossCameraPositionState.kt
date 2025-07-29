@@ -9,25 +9,20 @@ import com.farimarwat.krossmap.model.KrossCoordinate
 expect class KrossCameraPositionState {
 
     /**
-     * The current position of the camera on the map.
-     */
-    var currentCameraPosition: KrossCoordinate?
-
-    /**
      * Animates the camera to the given latitude and longitude with an optional bearing.
      *
      * @param latitude Target latitude.
      * @param longitude Target longitude.
      * @param bearing Direction the camera should face, in degrees. Default is 0.
      */
-    suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float = 0f)
-
-    /**
-     * Changes the tilt angle of the camera.
-     *
-     * @param tilt The new tilt angle in degrees.
-     */
-    suspend fun changeTilt(tilt: Float)
+    suspend fun animateCamera(
+        latitude: Double? = null,
+        longitude: Double? = null,
+        bearing: Float? = null,
+        tilt:Float? = null,
+        zoom:Float? = null,
+        durationMillis: Int = 1000
+        )
 }
 
 /**

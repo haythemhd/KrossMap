@@ -16,37 +16,27 @@ import com.google.maps.android.compose.rememberCameraPositionState
 actual class KrossCameraPositionState(
      internal val googleCameraPositionState: CameraPositionState?
 ) {
-
-    actual var currentCameraPosition by mutableStateOf<KrossCoordinate?>(null)
-    actual suspend fun animateCamera(latitude: Double, longitude: Double, bearing: Float){
+    actual suspend fun animateCamera(
+        latitude: Double?,
+        longitude: Double?,
+        bearing: Float?,
+        tilt:Float?,
+        zoom:Float?,
+        durationMillis: Int){
         val position = googleCameraPositionState?.position
         position?.let { p ->
             val cameraUpdate = CameraUpdateFactory.newCameraPosition(
                 CameraPosition.Builder()
-                    .target(LatLng(latitude, longitude))
-                    .zoom(p.zoom)
-                    .bearing(bearing)
-                    .tilt(p.tilt)
+                    .target(LatLng(latitude ?: p.target.latitude, longitude ?: p.target.longitude))
+                    .zoom(zoom ?: p.zoom)
+                    .bearing(bearing ?: p.bearing)
+                    .tilt(tilt ?: p.tilt)
                     .build()
             )
             googleCameraPositionState.animate(cameraUpdate,1200)
         }
     }
 
-    actual suspend fun changeTilt(tilt: Float) {
-        val position = googleCameraPositionState?.position
-        position?.let { p ->
-            val cameraUpdate = CameraUpdateFactory.newCameraPosition(
-                CameraPosition.Builder()
-                    .target(LatLng(position.target.latitude, position.target.longitude))
-                    .zoom(p.zoom)
-                    .bearing(position.bearing)
-                    .tilt(tilt)
-                    .build()
-            )
-            googleCameraPositionState.animate(cameraUpdate)
-        }
-    }
 }
 
 @Composable

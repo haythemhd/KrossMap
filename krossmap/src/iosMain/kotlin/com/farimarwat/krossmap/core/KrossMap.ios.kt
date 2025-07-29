@@ -42,15 +42,6 @@ actual fun KrossMap(
         derivedStateOf { mapState.markers.toList() }
     }
 
-    LaunchedEffect(cameraPositionState.currentCameraPosition) {
-        cameraPositionState.currentCameraPosition?.let { position ->
-            cameraPositionState.animateCamera(
-                position.latitude,
-                position.longitude
-            )
-        }
-    }
-
     val mapDelegate = remember { MapViewDelegate(mapState) }
     val animationHelper = remember { MarkerAnimationHelper() }
 

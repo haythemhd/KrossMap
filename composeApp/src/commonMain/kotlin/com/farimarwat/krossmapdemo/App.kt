@@ -50,13 +50,13 @@ fun App() {
         val latitude = 32.60370
         val longitude = 70.92179
         val zoom = 17f
-        var tilt by remember { mutableStateOf(60f)}
+        var tilt by remember { mutableStateOf(60f) }
 
         val currentLocationMarker = remember {
             mutableStateOf<KrossMarker?>(null)
         }
 
-        var navigation by remember { mutableStateOf(false)}
+        var navigation by remember { mutableStateOf(false) }
 
         Column(
             modifier = Modifier
@@ -117,12 +117,16 @@ fun App() {
                         mapState.addOrUpdateMarker(cm)
                     }
                     scope.launch {
-                        cameraState.animateCamera(it.latitude, it.longitude, it.bearing)
+                        cameraState.animateCamera(
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            bearing = it.bearing
+                        )
                     }
                 }
             }
-            LaunchedEffect(navigation){
-                if(navigation){
+            LaunchedEffect(navigation) {
+                if (navigation) {
                     mapState.startLocationUpdate()
                 } else {
                     mapState.stopLocationUpdate()
@@ -130,15 +134,15 @@ fun App() {
             }
 
             //Animate camera when camera position change is detected
-           /* LaunchedEffect(cameraState.currentCameraPosition) {
-                cameraState.currentCameraPosition?.let { position ->
-                    println("MyPosition: ${position}")
-                    cameraState.animateCamera(
-                        position.latitude,
-                        position.longitude
-                    )
-                }
-            }*/
+            /* LaunchedEffect(cameraState.currentCameraPosition) {
+                 cameraState.currentCameraPosition?.let { position ->
+                     println("MyPosition: ${position}")
+                     cameraState.animateCamera(
+                         position.latitude,
+                         position.longitude
+                     )
+                 }
+             }*/
             LaunchedEffect(currentLocationMarker) {
                 currentLocationMarker.value?.let { cm ->
                     mapState.addOrUpdateMarker(cm)
@@ -176,13 +180,13 @@ fun App() {
                                 mapState.requestCurrentLocation()
                             },
                             toggle3DViewClicked = {
-                                tilt = if(tilt > 0 ){
+                                tilt = if (tilt > 0) {
                                     0f
                                 } else {
                                     60f
                                 }
                                 scope.launch {
-                                    cameraState.changeTilt(tilt)
+                                    cameraState.animateCamera(tilt = tilt)
                                 }
                             },
                             toggleNavigation = {
@@ -203,7 +207,7 @@ fun MapSettings(
     navigation: Boolean,
     onCurrentLocationClicked: () -> Unit = {},
     toggle3DViewClicked: () -> Unit = {},
-    toggleNavigation:()-> Unit = {}
+    toggleNavigation: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.padding(16.dp),
@@ -235,7 +239,7 @@ fun MapSettings(
                 modifier = Modifier
                     .size(24.dp),
                 painter = painterResource(
-                    if(tilt > 0){
+                    if (tilt > 0) {
                         Res.drawable.ic_3d_view_cross
                     } else {
                         Res.drawable.ic_3d_view
@@ -256,7 +260,7 @@ fun MapSettings(
                 modifier = Modifier
                     .size(24.dp),
                 painter = painterResource(
-                    if(navigation){
+                    if (navigation) {
                         Res.drawable.ic_direction_cross
                     } else {
                         Res.drawable.ic_direction

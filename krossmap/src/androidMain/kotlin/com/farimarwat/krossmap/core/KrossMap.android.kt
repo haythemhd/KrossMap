@@ -62,14 +62,11 @@ actual fun KrossMap(
             }
             // Use the markers list directly without derivedStateOf
             mapState.markers.forEach { marker ->
-                // Use a stable, unique key (assuming title is unique)
-                key(marker.title) {
-                    AnimatedMarker(
-                        marker = marker,
-                        cameraTilt = currentTilt,
-                        cameraBearing = currentBearing
-                    )
-                }
+                AnimatedMarker(
+                    marker = marker,
+                    cameraTilt = currentTilt,
+                    cameraBearing = currentBearing
+                )
             }
 
             // Similar optimization for polylines
@@ -93,6 +90,7 @@ actual fun KrossMap(
 @Composable
 private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing: Float) {
     // Create MarkerState only once, keyed by marker title (unique identifier)
+    println("Marker Animating: ${marker.title}")
     val markerState = remember(marker.title) {
         MarkerState(position = LatLng(marker.coordinate.latitude, marker.coordinate.longitude))
     }

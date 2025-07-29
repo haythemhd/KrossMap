@@ -130,7 +130,7 @@ fun App() {
             }
 
             //Animate camera when camera position change is detected
-            LaunchedEffect(cameraState.currentCameraPosition) {
+           /* LaunchedEffect(cameraState.currentCameraPosition) {
                 cameraState.currentCameraPosition?.let { position ->
                     println("MyPosition: ${position}")
                     cameraState.animateCamera(
@@ -138,7 +138,7 @@ fun App() {
                         position.longitude
                     )
                 }
-            }
+            }*/
             LaunchedEffect(currentLocationMarker) {
                 currentLocationMarker.value?.let { cm ->
                     mapState.addOrUpdateMarker(cm)

@@ -1,7 +1,6 @@
 package com.farimarwat.krossmap.core
 
 import android.graphics.BitmapFactory
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -27,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.farimarwat.krossmap.model.KrossMarker
@@ -38,7 +36,6 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.launch
 
 @Composable
 actual fun KrossMap(
@@ -61,7 +58,7 @@ actual fun KrossMap(
             }
             val currentBearing by remember {
                 derivedStateOf {
-                    cameraPositionState.googleCameraPositionState?.position?.bearing ?: 0f
+                    mapState.currentLocation?.bearing ?: 0f
                 }
             }
             // Use the markers list directly without derivedStateOf
@@ -69,7 +66,7 @@ actual fun KrossMap(
                 AnimatedMarker(
                     marker = marker,
                     cameraTilt = currentTilt,
-                    cameraBearing = currentBearing
+                    bearing = currentBearing
                 )
             }
 
@@ -92,7 +89,7 @@ actual fun KrossMap(
 }
 
 @Composable
-private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing: Float) {
+private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, bearing: Float) {
     println("Marker Animating: ${marker.title}")
 
     val targetPosition = LatLng(marker.coordinate.latitude, marker.coordinate.longitude)
@@ -122,7 +119,7 @@ private fun AnimatedMarker(marker: KrossMarker, cameraTilt: Float, cameraBearing
     MarkerComposable(
         state = remember(currentPosition) { MarkerState(position = currentPosition) },
         flat = cameraTilt > 0f,
-        rotation = if(cameraTilt > 0f) cameraBearing else 0f
+        rotation = if(cameraTilt > 0f) bearing else 0f
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

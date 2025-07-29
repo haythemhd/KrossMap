@@ -29,7 +29,7 @@ actual class KrossCameraPositionState(
                     .tilt(p.tilt)
                     .build()
             )
-            googleCameraPositionState.animate(cameraUpdate)
+            googleCameraPositionState.animate(cameraUpdate,1200)
         }
     }
 

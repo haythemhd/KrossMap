@@ -4,6 +4,9 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import platform.CoreGraphics.CGAffineTransform
+import platform.CoreGraphics.CGAffineTransformMake
+import platform.CoreGraphics.CGAffineTransformMakeRotation
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSData
 import platform.Foundation.create
@@ -19,6 +22,7 @@ import platform.MapKit.MKPolylineRenderer
 import platform.UIKit.UIColor
 import platform.UIKit.UIImage
 import platform.darwin.NSObject
+import kotlin.math.PI
 
 class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
 
@@ -48,6 +52,11 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                 val uiImage = UIImage.imageWithData(nsData)
                 annotationView.image = uiImage
                 annotationView.setFrame(CGRectMake(0.0, 0.0, 40.0, 40.0))
+                mapState.currentLocation?.let { it ->
+                    val bearing = it.bearing
+                    val bearingRadians = bearing * PI / 180.0
+                    annotationView.transform = CGAffineTransformMakeRotation(bearingRadians)
+                }
             }
 
             return annotationView

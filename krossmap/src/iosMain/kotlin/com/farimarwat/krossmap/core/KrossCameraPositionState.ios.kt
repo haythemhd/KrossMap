@@ -26,7 +26,9 @@ actual class KrossCameraPositionState(
 
     actual var tilt by mutableStateOf(0f)
     private var mapView: MKMapView? = null
-    private var baseDistance: Double = 15000.0
+    private var baseDistance: Double = 10000.0
+
+    actual var cameraFollow by mutableStateOf(false)
 
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun animateCamera(
@@ -80,7 +82,8 @@ actual fun rememberKrossCameraPositionState(
     longitude: Double,
     zoom: Float,
     tilt: Float,
-    bearing: Float
+    bearing: Float,
+    cameraFollow: Boolean
 ): KrossCameraPositionState {
     val state = remember {
         val coordinate = CLLocationCoordinate2DMake(latitude, longitude)
@@ -94,7 +97,9 @@ actual fun rememberKrossCameraPositionState(
         )
         KrossCameraPositionState(
             camera
-        )
+        ).apply {
+            this.cameraFollow = cameraFollow
+        }
     }
     return state
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,7 +18,9 @@ import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.MapKit.MKMapView
@@ -34,11 +37,12 @@ actual fun KrossMap(
     cameraPositionState: KrossCameraPositionState,
     mapSettings: @Composable () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val initialMarkers by remember {
         derivedStateOf { mapState.markers.toList() }
     }
 
-    val mapDelegate = remember { MapViewDelegate(mapState) }
+    val mapDelegate = remember { MapViewDelegate(mapState, cameraPositionState) }
     val animationHelper = remember { MarkerAnimationHelper() }
 
     val mapView = remember {
@@ -58,6 +62,25 @@ actual fun KrossMap(
     LaunchedEffect(cameraPositionState.tilt){
         println("Tilt changed: ${cameraPositionState.tilt}")
         cameraPositionState.animateCamera(tilt = cameraPositionState.tilt)
+    }
+
+    val currentBearing by remember {
+        derivedStateOf {
+            mapState.currentLocation?.bearing ?: 0f
+        }
+    }
+    LaunchedEffect(currentBearing) {
+        scope.launch {
+            mapState.currentLocation?.let{
+                if (cameraPositionState.cameraFollow) {
+                    cameraPositionState.animateCamera(
+                        latitude = it.latitude,
+                        longitude = it.longitude,
+                        bearing = it.bearing,
+                    )
+                }
+            }
+        }
     }
 
 

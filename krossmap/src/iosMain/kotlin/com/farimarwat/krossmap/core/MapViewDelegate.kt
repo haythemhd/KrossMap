@@ -23,7 +23,10 @@ import platform.UIKit.UIImage
 import platform.darwin.NSObject
 import kotlin.math.PI
 
-class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapViewDelegateProtocol {
+class MapViewDelegate(
+    private val mapState: KrossMapState,
+    private val cameraState: KrossCameraPositionState
+    ) : NSObject(), MKMapViewDelegateProtocol {
     private var mapView: MKMapView? = null
 
     // Store reference to map view
@@ -72,7 +75,8 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                     val annotationView = map.viewForAnnotation(annotation)
                     annotationView?.let { view ->
                         mapState.currentLocation?.let { location ->
-                            val adjustedBearing = location.bearing + 90.0
+                            val bearing = if(cameraState.cameraFollow) 0f else location.bearing
+                            val adjustedBearing = bearing + 90.0
                             val bearingRadians = adjustedBearing * PI / 180.0
                             val pitchRadians = -cameraPitch * 2.0 * PI / 180.0  // Multiply by 2 for more pronounced effect
 

@@ -99,7 +99,7 @@ fun App() {
             val cameraState = rememberKrossCameraPositionState(
                 latitude = latitude,
                 longitude = longitude,
-                zoom =zoom,
+                zoom = zoom,
                 cameraFollow = true
             )
 

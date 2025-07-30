@@ -20,15 +20,11 @@ import kotlinx.cinterop.useContents
 import kotlinx.coroutines.delay
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
-import platform.Foundation.setValue
 import platform.MapKit.MKMapView
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKPolyline
 import platform.MapKit.addOverlay
 import platform.UIKit.UIColor
-import platform.UIKit.UIView
-import kotlin.math.cos
-import kotlin.math.sin
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -58,6 +54,12 @@ actual fun KrossMap(
     LaunchedEffect(mapState.currentLocation?.bearing) {
         mapDelegate.updateMarkerBearings()
     }
+
+    LaunchedEffect(cameraPositionState.tilt){
+        cameraPositionState.animateCamera(tilt = cameraPositionState.tilt)
+        mapDelegate.updateAnnotationDisplayPriority()
+    }
+
 
     // Animated marker updates
     LaunchedEffect(initialMarkers) {

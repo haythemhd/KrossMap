@@ -16,6 +16,11 @@ import com.google.maps.android.compose.rememberCameraPositionState
 actual class KrossCameraPositionState(
      internal val googleCameraPositionState: CameraPositionState?
 ) {
+
+    actual var tilt by mutableStateOf(0f)
+
+
+
     actual suspend fun animateCamera(
         latitude: Double?,
         longitude: Double?,
@@ -36,6 +41,7 @@ actual class KrossCameraPositionState(
             googleCameraPositionState.animate(cameraUpdate,1200)
         }
     }
+
 
 }
 

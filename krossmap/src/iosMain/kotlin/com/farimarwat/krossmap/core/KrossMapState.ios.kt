@@ -1,6 +1,7 @@
 package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,7 @@ actual class KrossMapState {
     private val locationManager = CLLocationManager()
 
     actual internal var previousCoordinates: KrossCoordinate? = null
+
 
 
 

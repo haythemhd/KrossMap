@@ -70,14 +70,30 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
                 val annotationView = mapView?.viewForAnnotation(annotation)
                 annotationView?.let { view ->
                     mapState.currentLocation?.let { location ->
-                        // Your bearing: 0°=North, 90°=East, 180°=South, 270°=West
-                        // iOS rotation: 0°=East, 90°=South, 180°=West, 270°=North
-                        // Subtract 90° to align: North bearing (0°) -> iOS North rotation (-90°/270°)
                         val adjustedBearing = location.bearing + 90.0
                         val bearingRadians = adjustedBearing * PI / 180.0
 
                         println("Geographic bearing: ${location.bearing}°, iOS rotation: ${adjustedBearing}°")
                         view.transform = CGAffineTransformMakeRotation(bearingRadians)
+                    }
+                }
+            }
+        }
+    }
+    fun updateAnnotationDisplayPriority() {
+        mapView?.let { map ->
+            val cameraPitch = map.camera.pitch
+            val shouldDisplayFlat = cameraPitch > 0.0
+
+            map.annotations.forEach { annotation ->
+                if (annotation is MKPointAnnotation) {
+                    val annotationView = map.viewForAnnotation(annotation)
+                    annotationView?.let { view ->
+                        view.displayPriority = if (shouldDisplayFlat) {
+                            platform.MapKit.MKFeatureDisplayPriorityDefaultLow
+                        } else {
+                            platform.MapKit.MKFeatureDisplayPriorityDefaultHigh
+                        }
                     }
                 }
             }

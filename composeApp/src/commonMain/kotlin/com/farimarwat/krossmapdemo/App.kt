@@ -50,8 +50,6 @@ fun App() {
         val latitude = 32.60370
         val longitude = 70.92179
         val zoom = 17f
-        var tilt by remember { mutableStateOf(60f) }
-
         val currentLocationMarker = remember {
             mutableStateOf<KrossMarker?>(null)
         }
@@ -99,7 +97,7 @@ fun App() {
             val mapState = rememberKrossMapState()
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
-                latitude, longitude, zoom, tilt, 0f
+                latitude, longitude, zoom, 0f, 0f
             )
 
             LaunchedEffect(Unit) {
@@ -174,19 +172,19 @@ fun App() {
                     cameraPositionState = cameraState,
                     mapSettings = {
                         MapSettings(
-                            tilt = tilt,
+                            tilt = cameraState.tilt,
                             navigation = navigation,
                             onCurrentLocationClicked = {
                                 mapState.requestCurrentLocation()
                             },
                             toggle3DViewClicked = {
-                                tilt = if (tilt > 0) {
-                                    0f
-                                } else {
-                                    60f
-                                }
                                 scope.launch {
-                                    cameraState.animateCamera(tilt = tilt)
+                                    cameraState.tilt = if (cameraState.tilt > 0) {
+                                        0f
+                                    } else {
+                                        60f
+                                    }
+                                    cameraState.animateCamera(tilt = cameraState.tilt)
                                 }
                             },
                             toggleNavigation = {

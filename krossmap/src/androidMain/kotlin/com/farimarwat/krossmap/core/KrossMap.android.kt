@@ -51,10 +51,8 @@ actual fun KrossMap(
             uiSettings = MapUiSettings(zoomControlsEnabled = false)
         ) {
 
-            val currentTilt by remember {
-                derivedStateOf {
-                    cameraPositionState.googleCameraPositionState?.position?.tilt ?: 0f
-                }
+            LaunchedEffect(cameraPositionState.tilt){
+                cameraPositionState.animateCamera(tilt = cameraPositionState.tilt)
             }
             val currentBearing by remember {
                 derivedStateOf {
@@ -65,7 +63,7 @@ actual fun KrossMap(
             mapState.markers.forEach { marker ->
                 AnimatedMarker(
                     marker = marker,
-                    cameraTilt = currentTilt,
+                    cameraTilt = cameraPositionState.tilt,
                     bearing = currentBearing
                 )
             }

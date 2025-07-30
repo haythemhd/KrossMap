@@ -37,6 +37,8 @@ expect class KrossMapState {
       */
      internal var previousCoordinates: KrossCoordinate?
 
+
+
      /**
       * Callback invoked whenever the location updates.
       */

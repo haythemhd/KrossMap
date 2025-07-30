@@ -23,6 +23,8 @@ import kotlin.math.pow
 actual class KrossCameraPositionState(
     private var camera: MKMapCamera
 ) {
+
+    actual var tilt by mutableStateOf(0f)
     private var mapView: MKMapView? = null
     private var baseDistance: Double = 15000.0
 

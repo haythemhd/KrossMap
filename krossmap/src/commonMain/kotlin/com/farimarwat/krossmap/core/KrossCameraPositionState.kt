@@ -1,12 +1,14 @@
 package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
-import com.farimarwat.krossmap.model.KrossCoordinate
 
 /**
  * Represents the camera state for the map, including the current position and camera controls.
  */
 expect class KrossCameraPositionState {
+
+
+    var tilt: Float
 
     /**
      * Animates the camera to the given latitude and longitude with an optional bearing.
@@ -31,7 +33,7 @@ expect class KrossCameraPositionState {
  * @param latitude Initial latitude position.
  * @param longitude Initial longitude position.
  * @param zoom Initial zoom level.
- * @param tilt Initial tilt angle of the camera.
+ * @param tilt Initial cameraTilt angle of the camera.
  * @param bearing Initial bearing (direction) the camera should face.
  */
 @Composable

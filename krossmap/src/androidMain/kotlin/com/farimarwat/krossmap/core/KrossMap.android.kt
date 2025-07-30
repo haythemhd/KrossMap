@@ -81,7 +81,15 @@ actual fun KrossMap(
                 AnimatedMarker(
                     marker = marker,
                     cameraTilt = cameraPositionState.tilt,
-                    bearing = if(cameraPositionState.cameraFollow) 0f else currentBearing
+                    bearing = if(cameraPositionState.cameraFollow) {
+                         if(cameraPositionState.tilt > 0){
+                            cameraPositionState.googleCameraPositionState?.position?.bearing ?: 0f
+                        } else {
+                            0f
+                        }
+                    } else {
+                        currentBearing
+                    }
                 )
             }
 

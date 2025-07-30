@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.farimarwat.krossmap.model.KrossCoordinate
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -18,9 +17,7 @@ actual class KrossCameraPositionState(
 ) {
 
     actual var tilt by mutableStateOf(0f)
-
-
-
+    actual var cameraFollow by mutableStateOf(true)
     actual suspend fun animateCamera(
         latitude: Double?,
         longitude: Double?,
@@ -51,7 +48,8 @@ actual fun rememberKrossCameraPositionState(
     longitude: Double,
     zoom: Float,
     tilt: Float,
-    bearing: Float
+    bearing: Float,
+    cameraFollow: Boolean
 ): KrossCameraPositionState {
     val googleCameraPositionState = rememberCameraPositionState{
         position = CameraPosition.builder()
@@ -60,5 +58,9 @@ actual fun rememberKrossCameraPositionState(
             .tilt(tilt)
             .build()
     }
-    return remember { KrossCameraPositionState(googleCameraPositionState) }
+    return remember {
+        KrossCameraPositionState(googleCameraPositionState).apply {
+            this.cameraFollow = cameraFollow
+        }
+    }
 }

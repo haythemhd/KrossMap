@@ -97,7 +97,10 @@ fun App() {
             val mapState = rememberKrossMapState()
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
-                latitude, longitude, zoom, 0f, 0f
+                latitude = latitude,
+                longitude = longitude,
+                zoom =zoom,
+                cameraFollow = true
             )
 
             LaunchedEffect(Unit) {
@@ -114,13 +117,7 @@ fun App() {
                     currentLocationMarker.value?.let { cm ->
                         mapState.addOrUpdateMarker(cm)
                     }
-                    scope.launch {
-                        cameraState.animateCamera(
-                            latitude = it.latitude,
-                            longitude = it.longitude,
-                            bearing = it.bearing
-                        )
-                    }
+
                 }
             }
             LaunchedEffect(navigation) {

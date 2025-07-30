@@ -10,6 +10,8 @@ expect class KrossCameraPositionState {
 
     var tilt: Float
 
+    var cameraFollow: Boolean
+
     /**
      * Animates the camera to the given latitude and longitude with an optional bearing.
      *
@@ -40,7 +42,8 @@ expect class KrossCameraPositionState {
 expect fun rememberKrossCameraPositionState(
     latitude: Double,
     longitude: Double,
-    zoom: Float,
-    tilt: Float,
-    bearing: Float
+    zoom: Float = 0f,
+    tilt: Float = 0f,
+    bearing: Float = 0f,
+    cameraFollow: Boolean = true
 ): KrossCameraPositionState

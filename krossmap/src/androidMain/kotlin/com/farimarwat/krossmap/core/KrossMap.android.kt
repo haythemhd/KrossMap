@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 
 @Composable
 actual fun KrossMap(
@@ -44,6 +46,7 @@ actual fun KrossMap(
     cameraPositionState: KrossCameraPositionState,
     mapSettings: @Composable () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             cameraPositionState = cameraPositionState.googleCameraPositionState
@@ -51,12 +54,26 @@ actual fun KrossMap(
             uiSettings = MapUiSettings(zoomControlsEnabled = false)
         ) {
 
-            LaunchedEffect(cameraPositionState.tilt){
+            LaunchedEffect(cameraPositionState.tilt) {
                 cameraPositionState.animateCamera(tilt = cameraPositionState.tilt)
             }
+
             val currentBearing by remember {
                 derivedStateOf {
                     mapState.currentLocation?.bearing ?: 0f
+                }
+            }
+            LaunchedEffect(currentBearing) {
+                scope.launch {
+                    mapState.currentLocation?.let{
+                        if (cameraPositionState.cameraFollow) {
+                            cameraPositionState.animateCamera(
+                                latitude = it.latitude,
+                                longitude = it.longitude,
+                                bearing = currentBearing,
+                            )
+                        }
+                    }
                 }
             }
             // Use the markers list directly without derivedStateOf
@@ -64,7 +81,7 @@ actual fun KrossMap(
                 AnimatedMarker(
                     marker = marker,
                     cameraTilt = cameraPositionState.tilt,
-                    bearing = currentBearing
+                    bearing = if(cameraPositionState.cameraFollow) 0f else currentBearing
                 )
             }
 

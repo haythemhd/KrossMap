@@ -115,11 +115,11 @@ fun App() {
                         mapState.addOrUpdateMarker(cm)
                     }
                     scope.launch {
-                       /* cameraState.animateCamera(
+                        cameraState.animateCamera(
                             latitude = it.latitude,
                             longitude = it.longitude,
                             bearing = it.bearing
-                        )*/
+                        )
                     }
                 }
             }
@@ -131,16 +131,6 @@ fun App() {
                 }
             }
 
-            //Animate camera when camera position change is detected
-            /* LaunchedEffect(cameraState.currentCameraPosition) {
-                 cameraState.currentCameraPosition?.let { position ->
-                     println("MyPosition: ${position}")
-                     cameraState.animateCamera(
-                         position.latitude,
-                         position.longitude
-                     )
-                 }
-             }*/
             LaunchedEffect(currentLocationMarker) {
                 currentLocationMarker.value?.let { cm ->
                     mapState.addOrUpdateMarker(cm)

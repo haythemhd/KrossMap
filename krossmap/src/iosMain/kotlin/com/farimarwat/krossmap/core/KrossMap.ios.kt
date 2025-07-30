@@ -51,13 +51,13 @@ actual fun KrossMap(
         cameraPositionState.setMapView(mapView)
         mapDelegate.setMapView(mapView)
     }
-    LaunchedEffect(mapState.currentLocation?.bearing) {
-        mapDelegate.updateMarkerBearings()
+    LaunchedEffect(mapState.currentLocation?.bearing, cameraPositionState.tilt) {
+        mapDelegate.updateMarkerTransforms()
     }
 
     LaunchedEffect(cameraPositionState.tilt){
+        println("Tilt changed: ${cameraPositionState.tilt}")
         cameraPositionState.animateCamera(tilt = cameraPositionState.tilt)
-        mapDelegate.updateAnnotationDisplayPriority()
     }
 
 

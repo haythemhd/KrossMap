@@ -4,9 +4,6 @@ import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import platform.CoreGraphics.CGAffineTransform
-import platform.CoreGraphics.CGAffineTransformMake
-import platform.CoreGraphics.CGAffineTransformMakeRotation
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSData
 import platform.Foundation.create
@@ -19,6 +16,8 @@ import platform.MapKit.MKOverlayRenderer
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKPolyline
 import platform.MapKit.MKPolylineRenderer
+import platform.QuartzCore.CATransform3DConcat
+import platform.QuartzCore.CATransform3DMakeRotation
 import platform.UIKit.UIColor
 import platform.UIKit.UIImage
 import platform.darwin.NSObject
@@ -36,6 +35,7 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     override fun mapView(mapView: MKMapView, viewForAnnotation: MKAnnotationProtocol): MKAnnotationView? {
         if (viewForAnnotation is MKPointAnnotation) {
+            println("MKAnnotation Protocol")
             val identifier = "CustomMarker"
             var annotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(identifier)
 
@@ -64,41 +64,29 @@ class MapViewDelegate(private val mapState: KrossMapState) : NSObject(), MKMapVi
         return null
     }
     @OptIn(ExperimentalForeignApi::class)
-    fun updateMarkerBearings() {
-        mapView?.annotations?.forEach { annotation ->
-            if (annotation is MKPointAnnotation) {
-                val annotationView = mapView?.viewForAnnotation(annotation)
-                annotationView?.let { view ->
-                    mapState.currentLocation?.let { location ->
-                        val adjustedBearing = location.bearing + 90.0
-                        val bearingRadians = adjustedBearing * PI / 180.0
-
-                        println("Geographic bearing: ${location.bearing}°, iOS rotation: ${adjustedBearing}°")
-                        view.transform = CGAffineTransformMakeRotation(bearingRadians)
-                    }
-                }
-            }
-        }
-    }
-    fun updateAnnotationDisplayPriority() {
+    fun updateMarkerTransforms() {
         mapView?.let { map ->
             val cameraPitch = map.camera.pitch
-            val shouldDisplayFlat = cameraPitch > 0.0
-
             map.annotations.forEach { annotation ->
                 if (annotation is MKPointAnnotation) {
                     val annotationView = map.viewForAnnotation(annotation)
                     annotationView?.let { view ->
-                        view.displayPriority = if (shouldDisplayFlat) {
-                            platform.MapKit.MKFeatureDisplayPriorityDefaultLow
-                        } else {
-                            platform.MapKit.MKFeatureDisplayPriorityDefaultHigh
+                        mapState.currentLocation?.let { location ->
+                            val adjustedBearing = location.bearing + 90.0
+                            val bearingRadians = adjustedBearing * PI / 180.0
+                            val pitchRadians = -cameraPitch * 2.0 * PI / 180.0  // Multiply by 2 for more pronounced effect
+
+                            val bearingTransform = CATransform3DMakeRotation(bearingRadians, 0.0, 0.0, 1.0)
+                            val pitchTransform = CATransform3DMakeRotation(pitchRadians, 1.0, 0.0, 0.0)
+                            view.transform3D = CATransform3DConcat(bearingTransform, pitchTransform)
                         }
                     }
                 }
             }
         }
     }
+
+
     /**
      * Alternative approach: Use a scaling factor based on empirical testing
      */

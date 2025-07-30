@@ -7,28 +7,30 @@ import com.farimarwat.krossmap.model.KrossMarker
 import com.farimarwat.krossmap.model.KrossPolyLine
 
 /**
- * Maintains the state of the KrossMap, including current location, markers, polylines,
- * and location update controls.
+ * Maintains the interactive state of the KrossMap, including current user location,
+ * marker and polyline management, and location update control.
+ *
+ * This is an `expect` class and must be implemented per platform.
  */
 expect class KrossMapState {
 
      /**
-      * The current location of the device, if available.
+      * The current location of the user/device, if available.
       */
      var currentLocation: KrossCoordinate?
 
      /**
-      * List of markers currently shown on the map.
+      * The list of markers currently displayed on the map.
       */
      internal val markers: SnapshotStateList<KrossMarker>
 
      /**
-      * List of polylines currently drawn on the map.
+      * The list of polylines currently drawn on the map.
       */
      internal val polylines: SnapshotStateList<KrossPolyLine>
 
      /**
-      * Indicates whether a location request has been made.
+      * Indicates whether a current location request has been initiated.
       */
      internal var currentLocationRequested: Boolean
 
@@ -37,59 +39,65 @@ expect class KrossMapState {
       */
      internal var previousCoordinates: KrossCoordinate?
 
-
-
      /**
-      * Callback invoked whenever the location updates.
+      * A callback function that is triggered when the user location is updated.
+      *
+      * @param KrossCoordinate The new location.
       */
      var onUpdateLocation: (KrossCoordinate) -> Unit
 
      /**
-      * Adds or updates a marker on the map.
+      * Adds a new marker to the map or updates an existing one if it already exists.
       *
       * @param marker The marker to add or update.
       */
      fun addOrUpdateMarker(marker: KrossMarker)
 
      /**
-      * Removes the given marker from the map.
+      * Removes a specified marker from the map.
       *
       * @param marker The marker to remove.
       */
      fun removeMarker(marker: KrossMarker)
 
      /**
-      * Adds a polyline to the map.
+      * Adds a new polyline to the map.
       *
       * @param polyLine The polyline to add.
       */
      fun addPolyLine(polyLine: KrossPolyLine)
 
      /**
-      * Removes the given polyline from the map.
+      * Removes a specified polyline from the map.
       *
       * @param polyline The polyline to remove.
       */
      fun removePolyLine(polyline: KrossPolyLine)
 
      /**
-      * Requests the current location of the user. Note: It starts and stops location updates automatically
+      * Requests the device's current location once.
+      *
+      * This method will internally start and stop location updates automatically.
       */
      fun requestCurrentLocation()
 
      /**
-      * Starts continuous location updates.
+      * Begins continuous location updates.
       */
      fun startLocationUpdate()
 
      /**
-      * Stops location updates.
+      * Stops ongoing location updates.
       */
      fun stopLocationUpdate()
 }
 
 /**
- * Remembers and provides a [KrossMapState] instance for managing map interaction and state.
+ * Composable function that remembers and provides a [KrossMapState] instance
+ * across recompositions. This state object is responsible for managing
+ * the map's interactive behaviors such as markers, polylines, and location updates.
+ *
+ * @return A retained instance of [KrossMapState] for map control and interaction.
  */
 @Composable
 expect fun rememberKrossMapState(): KrossMapState

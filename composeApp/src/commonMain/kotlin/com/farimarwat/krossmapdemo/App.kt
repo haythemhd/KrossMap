@@ -100,7 +100,7 @@ fun App() {
                 latitude = latitude,
                 longitude = longitude,
                 zoom = zoom,
-                cameraFollow = true
+                cameraFollow = truegit
             )
 
             LaunchedEffect(Unit) {

@@ -24,124 +24,37 @@ dependencies {
 
 ```
 
-### 🛠️ Usage Guide
+# 📍 KrossMap: Getting Started Guide
 
-Follow these simple steps to get started with `KrossMap` in your Kotlin Multiplatform app.
+Welcome to **KrossMap**, a Kotlin Multiplatform mapping library designed for modern Compose applications.
+
+This guide will walk you through the **basic usage** of `KrossMap`, including setting up the map, controlling the camera, adding markers and polylines, receiving location updates, and enabling 3D tilt view.
 
 ---
 
-### 📝 Create Camera State
+## 🧭 1. Setup Camera & Map State
 
-This defines the initial position and zoom level of the map:
+Before rendering the map, you need to initialize two states:
 
-```kotlin
-val cameraState = rememberKrossCameraPositionState(
-    latitude = 32.60370,      // Latitude of the location
-    longitude = 70.92179,     // Longitude of the location
-    zoom = 18f,               // Zoom level (higher = closer)
-    tilt = 45f,               // Tilt angle of the camera (0 = top-down, 90 = side view)
-    bearing = 0f              // Direction the camera is facing (0 = north)
-)
-```
-### 📝 Create Map State
+- `KrossMapState`: manages markers, polylines, and location.
+- `KrossCameraPositionState`: controls camera tilt, zoom, and animations.
 
 ```kotlin
+// Initialize camera and map state
 val mapState = rememberKrossMapState()
-
-LaunchedEffect(Unit) {
-    mapState.startLocationUpdate()
-    mapState.onUpdateLocation = { coordinates ->
-        // Update marker and camera when location changes
-       
-    }
-}
-```
-
-### 📍 Custom Marker Icon in KrossMap
-
-In `KrossMap`, you define markers using the `KrossMarker` data class. This class includes an optional `icon` parameter of type `ByteArray?`, allowing you to pass in a custom image for the marker.
-
----
-
-### 🧱 KrossMarker Data Class
-```kotlin
-data class KrossMarker(
-    var coordinate: KrossCoordinate,
-    val title: String = "",
-    val icon: ByteArray? = null // Nullable: provide icon or leave it null
+val cameraState = rememberKrossCameraPositionState(
+    latitude = 32.60370,
+    longitude = 70.92179,
+    zoom = 17f,
+    cameraFollow = true
 )
 ```
 
-- `coordinate`: Specifies the location (latitude, longitude)
-- `title`: Optional title shown on the marker
-- `icon`: Optional marker icon as a `ByteArray` (nullable)
-
 ---
 
-### ✅ How to Add a Marker with a Custom Icon
-You can add a marker like this:
+## 🗺️ 2. Show the Map
 
-```kotlin
-LaunchedEffect(Unit) {
-    val playerMarker = remember {
-        KrossMarker(
-            coordinate = KrossCoordinate(latitude = 32.60370, longitude = 70.92179),
-            title = "Player",
-            icon = Res.readBytes("drawable/ic_tracker.png") // Loads the image as ByteArray
-        )
-    }
-    mapState.addOrUpdateMarker(playerMarker)
-}
-```
-
-- `Res.readBytes("drawable/ic_tracker.png")` reads the image from your `resources/drawable` folder and converts it into a `ByteArray`.
-- This `ByteArray` is platform-agnostic and will be decoded natively:
-  - On **Android**, into a `Bitmap`.
-  - On **iOS**, into a `UIImage`.
-
----
-
-### 📝 Notes
-- If `icon` is `null`, the default marker icon will be used.
-- Make sure the image path is correct and included in your `resources` folder.
-- This approach keeps your API clean and consistent across platforms.
-
-```kotlin
-// Simple marker without icon
-KrossMarker(
-    coordinate = KrossCoordinate(34.0151, 71.5249),
-    title = "Default Marker"
-)
-
-// Marker with custom image icon
-KrossMarker(
-    coordinate = KrossCoordinate(34.0151, 71.5249),
-    title = "Player",
-    icon = Res.readBytes("drawable/ic_tracker.png")
-)
-```
-
-### 📝 Add Polyline (Route)
-
-```kotlin
-LaunchedEffect(Unit) {
-    val polyline = KrossPolyLine(
-        points = listOf(
-            KrossCoordinate(32.60370, 70.92179),
-            KrossCoordinate(32.60450, 70.92230),
-            KrossCoordinate(32.60500, 70.92300),
-            // Add more coordinates as needed
-        ),
-        title = "Route",
-        color = Color.Blue,
-        width = 24f
-    )
-
-    mapState.addPolyLine(polyline)
-}
-```
-
-###  📝 Show the Map
+Use the `KrossMap` composable to render the map using the states.
 
 ```kotlin
 KrossMap(
@@ -149,46 +62,137 @@ KrossMap(
     mapState = mapState,
     cameraPositionState = cameraState,
     mapSettings = {
+        //This can be your own composable which will be drawn on bottom-right
         MapSettings(
+            tilt = cameraState.tilt,
+            navigation = navigation,
             onCurrentLocationClicked = {
                 mapState.requestCurrentLocation()
+            },
+            toggle3DViewClicked = {
+                scope.launch {
+                    cameraState.tilt = if (cameraState.tilt > 0) 0f else 60f
+                    cameraState.animateCamera(tilt = cameraState.tilt)
+                }
+            },
+            toggleNavigation = {
+                navigation = !navigation
             }
         )
     }
 )
 ```
 
-### 🧩 KrossMapState
+---
 
-`KrossMapState` is the main state holder used to manage the map in KrossMap.  
-It provides support for working with markers, polylines, and current location updates.
+## 📌 3. Add a Marker
+
+You can add a marker to any coordinate using `KrossMarker`.
+
+```kotlin
+val marker = KrossMarker(
+    coordinate = KrossCoordinate(32.60370, 70.92179),
+    title = "My Marker",
+    icon = Res.readBytes("drawable/ic_tracker.png")
+)
+
+mapState.addOrUpdateMarker(marker)
+```
+
+To update it dynamically (e.g. with location changes):
+
+```kotlin
+mapState.onUpdateLocation = { newCoord ->
+    val updatedMarker = marker.copy(coordinate = newCoord)
+    mapState.addOrUpdateMarker(updatedMarker)
+}
+```
 
 ---
 
-### ✅ Usage
+## 📈 4. Draw a Polyline
+
+Polylines can represent routes or paths.
 
 ```kotlin
-val mapState = rememberKrossMapState()
+val polyline = KrossPolyLine(
+    points = listOf(
+        KrossCoordinate(32.6037, 70.9215),
+        KrossCoordinate(32.6038, 70.9220),
+        KrossCoordinate(32.6039, 70.9225),
+    ),
+    title = "Route Path",
+    color = Color.Blue,
+    width = 50f
+)
 
-LaunchedEffect(Unit) {
-    mapState.startLocationUpdate()
-    mapState.onUpdateLocation = { location ->
-        mapState.addOrUpdateMarker(KrossMarker(location, "Current"))
-        cameraState.currentCameraPosition = location
-    }
+mapState.addPolyLine(polyline)
+```
+
+---
+
+## 📡 5. Get Current Location Updates
+
+To track user movement in real-time:
+
+```kotlin
+// Starts automatic location updates
+mapState.startLocationUpdate()
+
+// Stops updates when not needed
+mapState.stopLocationUpdate()
+
+// Callback when location changes
+mapState.onUpdateLocation = { newLocation ->
+    // Example: move marker to new location
+    val updated = currentMarker.copy(coordinate = newLocation)
+    mapState.addOrUpdateMarker(updated)
 }
 ```
-### 🔧 Available Functions & Properties
 
-- `addOrUpdateMarker(marker)` – Add or update a marker on the map.
-- `removeMarker(marker)` – Remove a marker from the map.
-- `addPolyLine(polyLine)` – Add a polyline (route) to the map.
-- `removePolyLine(polyLine)` – Remove a polyline from the map.
-- `requestCurrentLocation()` – Request the current device location once.
-- `startLocationUpdate()` – Start listening to location updates.
-- `stopLocationUpdate()` – Stop location updates.
-- `currentLocation` – Holds the last known location.
-- `onUpdateLocation` – Callback triggered when location changes.
+You can also request a one-time location:
+
+```kotlin
+mapState.requestCurrentLocation()
+```
+
+---
+
+## 🎛️ 6. Enable 3D View (Tilt)
+
+To toggle 3D tilt effect on the camera:
+
+```kotlin
+scope.launch {
+    cameraState.tilt = if (cameraState.tilt > 0) 0f else 60f
+    cameraState.animateCamera(tilt = cameraState.tilt)
+}
+```
+
+You can bind this to a button to allow toggling:
+
+```kotlin
+IconButton(onClick = {
+    scope.launch {
+        cameraState.tilt = if (cameraState.tilt > 0) 0f else 60f
+        cameraState.animateCamera(tilt = cameraState.tilt)
+    }
+}) {
+    Icon(...) // Use a 3D icon
+}
+```
+
+---
+
+✅ That's it! You've now covered:
+
+- Camera & map state setup  
+- Displaying the map  
+- Adding markers & polylines  
+- Location tracking  
+- 3D tilt camera view
+
+Explore more by checking out the individual class documentation or experimenting further in your app!
 
 ---
 

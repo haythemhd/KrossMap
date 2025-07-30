@@ -95,12 +95,13 @@ fun App() {
 
             //Create Map State
             val mapState = rememberKrossMapState()
+            var cameraFollow by remember { mutableStateOf(true)}
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
                 latitude = latitude,
                 longitude = longitude,
                 zoom = zoom,
-                cameraFollow = true
+                cameraFollow = cameraFollow
             )
 
             LaunchedEffect(Unit) {
@@ -171,7 +172,12 @@ fun App() {
                                     } else {
                                         60f
                                     }
+
+                                    //Pause navigation for a second because it will effectly change the 3d mode.
+                                    navigation = false
+                                    delay(500)
                                     cameraState.animateCamera(tilt = cameraState.tilt)
+                                    navigation = true
                                 }
                             },
                             toggleNavigation = {

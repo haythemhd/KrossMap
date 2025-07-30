@@ -111,7 +111,7 @@ kotlin {
         coordinates(
             groupId = "io.github.farimarwat",
             artifactId = "krossmap",
-            version = "1.1"
+            version = "1.2"
         )
         pom {
             name.set("KrossMap")

@@ -85,7 +85,7 @@ class MapViewDelegate(
                             }
 
                             val bearingRadians = bearing * PI / 180.0
-                            val pitchRadians = -cameraPitch * 2.0 * PI / 180.0
+                            val pitchRadians = -cameraPitch * 1.5 * PI / 180.0
 
                             val bearingTransform = CATransform3DMakeRotation(bearingRadians, 0.0, 0.0, 1.0)
                             val pitchTransform = CATransform3DMakeRotation(pitchRadians, 1.0, 0.0, 0.0)

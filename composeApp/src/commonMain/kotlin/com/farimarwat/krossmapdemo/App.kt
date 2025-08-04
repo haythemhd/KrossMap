@@ -170,14 +170,15 @@ fun App() {
                                     cameraState.tilt = if (cameraState.tilt > 0) {
                                         0f
                                     } else {
-                                        60f
+                                        45f
                                     }
 
                                     //Pause navigation for a second because it will effectly change the 3d mode.
+                                    val oldNavigation = navigation
                                     navigation = false
                                     delay(500)
                                     cameraState.animateCamera(tilt = cameraState.tilt)
-                                    navigation = true
+                                    navigation = oldNavigation
                                 }
                             },
                             toggleNavigation = {

@@ -19,9 +19,10 @@ actual fun calculateBearing(
 
     var bearingDegrees = ((bearing.toDegrees() + 360) % 360).toFloat()
 
-    // Adjust for iOS: Your image points North at 0°, but iOS 0° is East
-    // So subtract 90° to align properly
-    bearingDegrees = (bearingDegrees - 90f + 360f) % 360f
+    // Configurable direction offset
+    val directionOffset = 0f  // Change this single value to adjust pointing direction
+
+    bearingDegrees = (bearingDegrees + directionOffset + 360f) % 360f
 
     return bearingDegrees
 }

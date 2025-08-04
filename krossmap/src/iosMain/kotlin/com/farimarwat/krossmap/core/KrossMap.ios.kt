@@ -48,6 +48,9 @@ actual fun KrossMap(
     val mapView = remember {
         MKMapView().apply {
             delegate = mapDelegate
+            showsTraffic = true
+            showsBuildings = true
+            showsPointsOfInterest = true
         }
     }
 

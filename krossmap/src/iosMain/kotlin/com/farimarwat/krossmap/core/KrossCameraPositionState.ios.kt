@@ -127,6 +127,6 @@ fun zoomToDistance(zoom: Float): Double {
         zoom >= 1 -> 78643200.0   // was 65536000.0
         else -> 157286400.0       // was 131072000.0
     }
-    return baseDistance * 1.5
+    return baseDistance * 1.2
 }
 

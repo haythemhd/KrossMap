@@ -95,7 +95,7 @@ fun App() {
 
             //Create Map State
             val mapState = rememberKrossMapState()
-            var cameraFollow by remember { mutableStateOf(true)}
+            var cameraFollow by remember { mutableStateOf(false)}
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
                 latitude = latitude,

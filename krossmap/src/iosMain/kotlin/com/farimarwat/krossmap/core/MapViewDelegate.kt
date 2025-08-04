@@ -75,10 +75,17 @@ class MapViewDelegate(
                     val annotationView = map.viewForAnnotation(annotation)
                     annotationView?.let { view ->
                         mapState.currentLocation?.let { location ->
-                            val bearing = if(cameraState.cameraFollow) 0f else location.bearing
-                            val adjustedBearing = bearing + 90.0
-                            val bearingRadians = adjustedBearing * PI / 180.0
-                            val pitchRadians = -cameraPitch * 2.0 * PI / 180.0  // Multiply by 2 for more pronounced effect
+                            val bearing = if(cameraState.cameraFollow) {
+                                // When camera is following, marker should always point up (0°)
+                                // But we need to counter-rotate against the map's rotation
+                                0.0 /// Negative to counter the map rotation
+                            } else {
+                                // When camera is not following, use actual bearing
+                                location.bearing + 0.0  // Your original adjustment
+                            }
+
+                            val bearingRadians = bearing * PI / 180.0
+                            val pitchRadians = -cameraPitch * 2.0 * PI / 180.0
 
                             val bearingTransform = CATransform3DMakeRotation(bearingRadians, 0.0, 0.0, 1.0)
                             val pitchTransform = CATransform3DMakeRotation(pitchRadians, 1.0, 0.0, 0.0)

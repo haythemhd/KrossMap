@@ -19,7 +19,7 @@ To add **KrossMap** to your project, include the following in your **shared modu
 
 ```kotlin
 dependencies {
-    implementation("io.github.farimarwat:krossmap:1.1")
+    implementation("io.github.farimarwat:krossmap:1.2")
 }
 
 ```

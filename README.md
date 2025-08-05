@@ -61,6 +61,7 @@ KrossMap(
     modifier = Modifier.fillMaxSize(),
     mapState = mapState,
     cameraPositionState = cameraState,
+    properties = KrossMapPropertiesDefaults.defaults(),
     mapSettings = {
         //This can be your own composable which will be drawn on bottom-right
         MapSettings(

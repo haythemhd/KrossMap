@@ -8,5 +8,6 @@ expect fun KrossMap(
     modifier: Modifier = Modifier,
     mapState: KrossMapState,
     cameraPositionState: KrossCameraPositionState,
+    properties: KrossMapProperties = KrossMapPropertiesDefaults.defaults(),
     mapSettings:@Composable ()->Unit = {}
 )

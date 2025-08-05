@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.farimarwat.krossmap.model.KrossMarker
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
@@ -44,6 +45,7 @@ actual fun KrossMap(
     modifier: Modifier,
     mapState: KrossMapState,
     cameraPositionState: KrossCameraPositionState,
+    properties: KrossMapProperties,
     mapSettings: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -51,7 +53,18 @@ actual fun KrossMap(
         GoogleMap(
             cameraPositionState = cameraPositionState.googleCameraPositionState
                 ?: rememberCameraPositionState(),
-            uiSettings = MapUiSettings(zoomControlsEnabled = false)
+            properties = MapProperties(
+                isTrafficEnabled = properties.showTraffic,
+                isBuildingEnabled = properties.showBuildings,
+
+            ),
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                compassEnabled = properties.showCompass,
+                rotationGesturesEnabled = properties.enableRotationGesture,
+                tiltGesturesEnabled = properties.enableTiltGesture,
+                scrollGesturesEnabled = properties.enableScrollGesture
+            )
         ) {
 
             LaunchedEffect(cameraPositionState.tilt) {

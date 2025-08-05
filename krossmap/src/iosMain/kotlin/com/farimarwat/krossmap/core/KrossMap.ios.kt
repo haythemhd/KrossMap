@@ -35,6 +35,7 @@ actual fun KrossMap(
     modifier: Modifier,
     mapState: KrossMapState,
     cameraPositionState: KrossCameraPositionState,
+    properties: KrossMapProperties,
     mapSettings: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -48,9 +49,13 @@ actual fun KrossMap(
     val mapView = remember {
         MKMapView().apply {
             delegate = mapDelegate
-            showsTraffic = true
-            showsBuildings = true
-            showsPointsOfInterest = true
+            showsTraffic = properties.showTraffic
+            showsBuildings = properties.showBuildings
+            showsPointsOfInterest = properties.showPointOfInterest
+            showsCompass = properties.showCompass
+            rotateEnabled = properties.enableRotationGesture
+            pitchEnabled = properties.enableTiltGesture
+            scrollEnabled = properties.enableScrollGesture
         }
     }
 

@@ -197,6 +197,22 @@ Explore more by checking out the individual class documentation or experimenting
 
 ---
 
+## Version History
+
+### 🚀 What's New in `KrossMap` v1.3
+
+1. 🧭 **Improved Camera Controls on iOS**  
+   - Enhanced support for camera **tilting** and **direction** handling on iOS.
+
+2. ⚙️ **New Map Properties API**  
+   - Introduced `KrossMapProperties` to control:
+     - 🏙️ `showBuildings` – Toggle 3D building rendering  
+     - 📍 `showPointOfInterest` – Show points of interest (iOS only)  
+     - 🚗 `showTraffic` – Enable real-time traffic overlay  
+     - 🔄 `enableRotationGesture` – Allow user rotation  
+     - 🧭 `enableTiltGesture` – Allow tilting with gestures  
+     - 🖐️ `enableScrollGesture` – Enable panning/scrolling
+
 ### 🤝 Contribute
 
 KrossMap is open-source and welcomes contributions!  

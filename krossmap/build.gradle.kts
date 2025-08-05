@@ -111,12 +111,12 @@ kotlin {
         coordinates(
             groupId = "io.github.farimarwat",
             artifactId = "krossmap",
-            version = "1.2"
+            version = "1.3"
         )
         pom {
             name.set("KrossMap")
             description.set("A simple and customizable Map library for Kotlin Multiplatform (KMP) projects, supporting marker rendering, camera movement, and cross-platform compatibility.")
-            inceptionYear.set("2024")
+            inceptionYear.set("2025")
             url.set("https://github.com/farimarwat/KrossMap")
 
             licenses {

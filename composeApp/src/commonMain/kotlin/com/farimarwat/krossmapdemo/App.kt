@@ -95,7 +95,7 @@ fun App() {
 
             //Create Map State
             val mapState = rememberKrossMapState()
-            var cameraFollow by remember { mutableStateOf(false)}
+            var cameraFollow by remember { mutableStateOf(true)}
             //Create Camera State
             val cameraState = rememberKrossCameraPositionState(
                 latitude = latitude,
@@ -164,6 +164,11 @@ fun App() {
                             navigation = navigation,
                             onCurrentLocationClicked = {
                                 mapState.requestCurrentLocation()
+                               scope.launch {
+                                   mapState.currentLocation?.let{
+                                       cameraState.animateCamera(it.latitude, it.longitude)
+                                   }
+                               }
                             },
                             toggle3DViewClicked = {
                                 scope.launch {

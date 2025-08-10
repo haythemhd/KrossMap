@@ -39,6 +39,8 @@ import krossmapdemo.composeapp.generated.resources.ic_3d_view_cross
 import krossmapdemo.composeapp.generated.resources.ic_current_location
 import krossmapdemo.composeapp.generated.resources.ic_direction
 import krossmapdemo.composeapp.generated.resources.ic_direction_cross
+import krossmapdemo.composeapp.generated.resources.ic_zoom_in
+import krossmapdemo.composeapp.generated.resources.ic_zoom_out
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -49,7 +51,7 @@ fun App() {
     MaterialTheme {
         val latitude = 32.60370
         val longitude = 70.92179
-        val zoom = 17f
+        var zoomValue by remember { mutableStateOf(17f) }
         val currentLocationMarker = remember {
             mutableStateOf<KrossMarker?>(null)
         }
@@ -73,25 +75,7 @@ fun App() {
             BindEffect(permissionController)
             LaunchedEffect(Unit) {
                 permissionGranted = permissionController.isPermissionGranted(Permission.LOCATION)
-                if (!permissionGranted) {
-                    try {
-                        permissionController.providePermission(Permission.LOCATION)
-                        permissionGranted =
-                            permissionController.isPermissionGranted(Permission.LOCATION)
-                    } catch (ex: DeniedException) {
-                        permissionController.openAppSettings()
-                        println(ex)
-                    } catch (ex: DeniedAlwaysException) {
-                        permissionController.openAppSettings()
-                        println(ex)
-                    } catch (ex: RequestCanceledException) {
-                        println(ex)
-                    }
-                } else {
-                    println("Permission already granted")
-                }
             }
-
 
             //Create Map State
             val mapState = rememberKrossMapState()
@@ -100,7 +84,7 @@ fun App() {
             val cameraState = rememberKrossCameraPositionState(
                 latitude = latitude,
                 longitude = longitude,
-                zoom = zoom,
+                zoom = zoomValue,
                 cameraFollow = cameraFollow
             )
 
@@ -112,17 +96,18 @@ fun App() {
                         icon = Res.readBytes("drawable/ic_tracker.png")
                     )
             }
+
             LaunchedEffect(Unit) {
                 mapState.onUpdateLocation = {
                     currentLocationMarker.value = currentLocationMarker.value?.copy(coordinate = it)
                     currentLocationMarker.value?.let { cm ->
                         mapState.addOrUpdateMarker(cm)
                     }
-
                 }
             }
-            LaunchedEffect(navigation) {
-                if (navigation) {
+
+            LaunchedEffect(navigation, permissionGranted) {
+                if (navigation && permissionGranted) {
                     mapState.startLocationUpdate()
                 } else {
                     mapState.stopLocationUpdate()
@@ -152,47 +137,75 @@ fun App() {
                 mapState.addPolyLine(polyline)
             }
 
-            if (permissionGranted) {
-                //Create Map
-                KrossMap(
-                    modifier = Modifier.fillMaxSize(),
-                    mapState = mapState,
-                    cameraPositionState = cameraState,
-                    mapSettings = {
-                        MapSettings(
-                            tilt = cameraState.tilt,
-                            navigation = navigation,
-                            onCurrentLocationClicked = {
-                                mapState.requestCurrentLocation()
-                               scope.launch {
-                                   mapState.currentLocation?.let{
-                                       cameraState.animateCamera(it.latitude, it.longitude)
-                                   }
-                               }
-                            },
-                            toggle3DViewClicked = {
-                                scope.launch {
-                                    cameraState.tilt = if (cameraState.tilt > 0) {
-                                        0f
-                                    } else {
-                                        45f
+            //Create Map (always render; location permission requested only on demand)
+            KrossMap(
+                modifier = Modifier.fillMaxSize(),
+                mapState = mapState,
+                cameraPositionState = cameraState,
+                mapSettings = {
+                    MapSettings(
+                        tilt = cameraState.tilt,
+                        navigation = navigation,
+                        onCurrentLocationClicked = {
+                            scope.launch {
+                                var granted =
+                                    permissionController.isPermissionGranted(Permission.LOCATION)
+                                if (!granted) {
+                                    try {
+                                        permissionController.providePermission(Permission.LOCATION)
+                                    } catch (ex: DeniedException) {
+                                        permissionController.openAppSettings()
+                                        println(ex)
+                                    } catch (ex: DeniedAlwaysException) {
+                                        permissionController.openAppSettings()
+                                        println(ex)
+                                    } catch (ex: RequestCanceledException) {
+                                        println(ex)
                                     }
-
-                                    //Pause navigation for a second because it will effectly change the 3d mode.
-                                    val oldNavigation = navigation
-                                    navigation = false
-                                    delay(500)
-                                    cameraState.animateCamera(tilt = cameraState.tilt)
-                                    navigation = oldNavigation
+                                    granted =
+                                        permissionController.isPermissionGranted(Permission.LOCATION)
                                 }
-                            },
-                            toggleNavigation = {
-                                navigation = !navigation
+                                permissionGranted = granted
+                                if (granted) {
+                                    mapState.requestCurrentLocation()
+                                    mapState.currentLocation?.let { loc ->
+                                        cameraState.animateCamera(loc.latitude, loc.longitude)
+                                    }
+                                }
                             }
-                        )
-                    }
-                )
-            }
+                        },
+                        toggle3DViewClicked = {
+                            scope.launch {
+                                cameraState.tilt = if (cameraState.tilt > 0) {
+                                    0f
+                                } else {
+                                    45f
+                                }
+                                val oldNavigation = navigation
+                                navigation = false
+                                delay(500)
+                                cameraState.animateCamera(tilt = cameraState.tilt)
+                                navigation = oldNavigation
+                            }
+                        },
+                        toggleNavigation = {
+                            navigation = !navigation
+                        },
+                        onZoomInClicked = {
+                            scope.launch {
+                                zoomValue++
+                                cameraState.animateCamera(zoom = zoomValue)
+                            }
+                        },
+                        onZoomOutClicked = {
+                            scope.launch {
+                                zoomValue--
+                                cameraState.animateCamera(zoom = zoomValue)
+                            }
+                        }
+                    )
+                }
+            )
 
         }
     }
@@ -204,7 +217,9 @@ fun MapSettings(
     navigation: Boolean,
     onCurrentLocationClicked: () -> Unit = {},
     toggle3DViewClicked: () -> Unit = {},
-    toggleNavigation: () -> Unit = {}
+    toggleNavigation: () -> Unit = {},
+    onZoomInClicked: () -> Unit = {},
+    onZoomOutClicked: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier.padding(16.dp),
@@ -262,6 +277,40 @@ fun MapSettings(
                     } else {
                         Res.drawable.ic_direction
                     }
+                ),
+                contentDescription = "Current Location",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Blue),
+            onClick = onZoomInClicked
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                painter = painterResource(
+                    Res.drawable.ic_zoom_in
+                ),
+                contentDescription = "Zoom In",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.Blue),
+            onClick = onZoomOutClicked
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                painter = painterResource(
+                    Res.drawable.ic_zoom_out
                 ),
                 contentDescription = "Current Location",
                 tint = Color.White

@@ -26,8 +26,6 @@ actual class KrossCameraPositionState(
 
     actual var tilt by mutableStateOf(0f)
     private var mapView: MKMapView? = null
-    private var baseDistance: Double = 10000.0
-
     actual var cameraFollow by mutableStateOf(false)
 
     @OptIn(ExperimentalForeignApi::class)
@@ -45,8 +43,7 @@ actual class KrossCameraPositionState(
 
         val coordinate = CLLocationCoordinate2DMake(latitude ?: lat, longitude ?: lng)
 
-        // Always calculate distance from base distance, not current distance
-        val distance = zoom?.let { zoomToDistanceFromBase(it) } ?: currentCamera.centerCoordinateDistance
+        val distance = zoom?.let { zoomToDistance(it) } ?: currentCamera.centerCoordinateDistance
 
         val newCamera = MKMapCamera.cameraLookingAtCenterCoordinate(
             centerCoordinate = coordinate,
@@ -58,18 +55,11 @@ actual class KrossCameraPositionState(
         mapView?.setCamera(newCamera, animated = true)
     }
 
-    private fun zoomToDistanceFromBase(zoom: Float): Double {
-        // Calculate distance based on base distance, not current distance
-        // Adjust this formula based on your zoom scale
-        return baseDistance / (2.0.pow(zoom.toDouble() - 10.0)) // Assuming zoom 10 = base distance
-    }
-
 
     @OptIn(ExperimentalForeignApi::class)
     internal fun setMapView(map: MKMapView) {
         mapView = map
         mapView?.setCamera(camera)
-        baseDistance = mapView?.camera?.centerCoordinateDistance ?: 15000.0
     }
 
 
@@ -103,6 +93,7 @@ actual fun rememberKrossCameraPositionState(
     }
     return state
 }
+
 fun zoomToDistance(zoom: Float): Double {
     val baseDistance =  when {
         zoom >= 20 -> 200.0       // was 170.0

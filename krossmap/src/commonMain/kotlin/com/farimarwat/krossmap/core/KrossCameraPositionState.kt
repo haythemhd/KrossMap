@@ -1,6 +1,7 @@
 package com.farimarwat.krossmap.core
 
 import androidx.compose.runtime.Composable
+import com.farimarwat.krossmap.model.KrossCoordinate
 
 /**
  * A multiplatform representation of a map camera controller and its state.
@@ -24,6 +25,12 @@ expect class KrossCameraPositionState {
      * When true, user interactions like dragging the map may reset camera position.
      */
     var cameraFollow: Boolean
+
+    /**
+     * Current center of the visible map region (camera target), if available.
+     * Returns null if the underlying map view/state is not yet ready.
+     */
+    val center: KrossCoordinate?
 
     /**
      * Animates the camera to the specified location and orientation.

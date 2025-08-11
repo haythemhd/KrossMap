@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.farimarwat.krossmap.model.KrossCoordinate
 
 actual class KrossCameraPositionState(
      internal val googleCameraPositionState: CameraPositionState?
@@ -18,6 +19,17 @@ actual class KrossCameraPositionState(
 
     actual var tilt by mutableStateOf(0f)
     actual var cameraFollow by mutableStateOf(true)
+
+    actual val center: KrossCoordinate?
+        get() {
+            val position = googleCameraPositionState?.position ?: return null
+            val target = position.target
+            return KrossCoordinate(
+                latitude = target.latitude,
+                longitude = target.longitude,
+                bearing = position.bearing
+            )
+        }
     actual suspend fun animateCamera(
         latitude: Double?,
         longitude: Double?,

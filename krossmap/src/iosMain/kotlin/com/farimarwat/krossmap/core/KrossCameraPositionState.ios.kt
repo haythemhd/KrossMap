@@ -28,6 +28,19 @@ actual class KrossCameraPositionState(
     private var mapView: MKMapView? = null
     actual var cameraFollow by mutableStateOf(false)
 
+    actual val center: KrossCoordinate?
+        @OptIn(ExperimentalForeignApi::class)
+        get() {
+            val currentCamera = mapView?.camera ?: camera
+            val coord = currentCamera.centerCoordinate ?: return null
+            val (lat, lng) = coord.useContents { this.latitude to this.longitude }
+            return KrossCoordinate(
+                latitude = lat,
+                longitude = lng,
+                bearing = currentCamera.heading.toFloat()
+            )
+        }
+
     @OptIn(ExperimentalForeignApi::class)
     actual suspend fun animateCamera(
         latitude: Double?,
